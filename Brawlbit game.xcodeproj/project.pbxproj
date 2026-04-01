@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CAA2604B2F759AC000AA7C9F /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAA2604A2F759AC000AA7C9F /* SpriteKit.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CAA2603B2F75977200AA7C9F /* Brawlbit game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brawlbit game.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAA2604A2F759AC000AA7C9F /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CAA2604B2F759AC000AA7C9F /* SpriteKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +39,7 @@
 			isa = PBXGroup;
 			children = (
 				CAA2603D2F75977200AA7C9F /* Brawlbit game */,
+				CAA260492F759ABF00AA7C9F /* Frameworks */,
 				CAA2603C2F75977200AA7C9F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +50,14 @@
 				CAA2603B2F75977200AA7C9F /* Brawlbit game.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CAA260492F759ABF00AA7C9F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CAA2604A2F759AC000AA7C9F /* SpriteKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

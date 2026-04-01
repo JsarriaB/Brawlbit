@@ -1,17 +1,19 @@
-//
-//  Brawlbit_gameApp.swift
-//  Brawlbit game
-//
-//  Created by Jorge Sarria Bruned on 26/3/26.
-//
-
 import SwiftUI
+import SwiftData
 
 @main
 struct Brawlbit_gameApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
+        .modelContainer(for: [
+            Hero.self,
+            MonsterTask.self,
+            Battle.self,
+            DayRecord.self,
+            Goal90.self,
+            UnlockedAchievement.self
+        ])
     }
 }
