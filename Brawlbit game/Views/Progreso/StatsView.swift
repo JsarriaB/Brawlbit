@@ -80,6 +80,7 @@ struct StatsView: View {
                 VStack(spacing: 20) {
                     if let hero {
                         profileCard(hero: hero)
+                        shieldOrbsRow(hero: hero)
                         statsGrid
                         taskHighlights
                     }
@@ -157,6 +158,31 @@ struct StatsView: View {
         .padding(18)
         .background(Color(white: 0.12))
         .cornerRadius(16)
+    }
+
+    // MARK: - Shield orbs
+
+    private func shieldOrbsRow(hero: Hero) -> some View {
+        HStack(spacing: 10) {
+            Text("SHIELD ORBS")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(Color(white: 0.4))
+                .tracking(1)
+            Spacer()
+            HStack(spacing: 6) {
+                ForEach(0..<3) { i in
+                    Image("+")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 26, height: 26)
+                        .opacity(i < hero.shieldOrbs ? 1.0 : 0.15)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color(white: 0.12))
+        .cornerRadius(12)
     }
 
     // MARK: - Stats grid

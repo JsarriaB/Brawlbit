@@ -8,6 +8,8 @@ final class AppState {
         set { UserDefaults.standard.set(newValue, forKey: "hasCompletedOnboarding") }
     }
     var showDaySummary: Bool = false
+    var showChallengeComplete: Bool = false
+    var orbPending: Bool = false
 
     /// Resets all tasks if the calendar day has changed since last reset.
     /// Also restores hero HP to full for the new day.
@@ -36,5 +38,6 @@ final class AppState {
 
         UserDefaults.standard.set(Date(), forKey: "lastResetDate")
         UserDefaults.standard.removeObject(forKey: "lastSummaryDate")
+        WidgetWriter.write(tasks: tasks, hero: hero)
     }
 }

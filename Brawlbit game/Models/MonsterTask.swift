@@ -146,4 +146,15 @@ enum MonsterType: String, Codable, CaseIterable {
         case .smallDragon: return (1...4).map { "SmallDragon/small_dragon/Walk\($0)" }
         }
     }
+
+    var widgetEmoji: String {
+        switch self {
+        case .demon:       return "👹"
+        case .dragon:      return "🐉"
+        case .jinn:        return "🌀"
+        case .lizard:      return "🦎"
+        case .medusa:      return "🐍"
+        case .smallDragon: return "🐲"
+        }
+    }
 }

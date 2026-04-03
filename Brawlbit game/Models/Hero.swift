@@ -9,6 +9,7 @@ final class Hero {
     var battleground: Battleground
     var activeSkin: String
     var points: Int
+    var shieldOrbs: Int = 0
     var createdAt: Date
     var hp: Double   // 0.0–1.0, persists across the session
 
@@ -48,6 +49,14 @@ enum HeroClass: String, Codable, CaseIterable {
         case .knight: return "Knight"
         case .mage: return "Mage"
         case .rogue: return "Rogue"
+        }
+    }
+
+    var roomAssetName: String {
+        switch self {
+        case .knight: return "knight room"
+        case .mage:   return "Mage room"
+        case .rogue:  return "Roge room"
         }
     }
 
@@ -131,6 +140,14 @@ enum HeroClass: String, Codable, CaseIterable {
         case .knight: return (1...7).map { "Knight/Knight/Jump/jump\($0)" }
         case .mage:   return (1...7).map { "Mage/Mage/Jump/jump\($0)" }
         case .rogue:  return (1...7).map { "Rogue/Rogue/Jump/jump\($0)" }
+        }
+    }
+
+    var highJumpFrames: [String] {
+        switch self {
+        case .knight: return ["Knight/Knight/Jump_high/jump1"] + (2...12).map { "Knight/Knight/Jump_high/high_jump\($0)" }
+        case .mage:   return (1...12).map { "Mage/Mage/High_jump/high_jump\($0)" }
+        case .rogue:  return (1...12).map { "Rogue/Rogue/High_Jump/high_jump\($0)" }
         }
     }
 }

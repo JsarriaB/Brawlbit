@@ -38,6 +38,15 @@ struct TodayView: View {
     @State private var floatingPoints: Int = 0
     @State private var showFloatingPoints = false
 
+    // Orb catch animation
+    @State private var orbCatchTrigger = false
+    @State private var showOrbPopup = false
+    @State private var earnedOrbCount = 0
+
+    // Orb used (shield protection)
+    @State private var orbUsedPending = false
+    @State private var showOrbUsedPopup = false
+
     // Periodic check while app is open
     private let checkClock = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     @State private var isViewVisible = false
@@ -57,6 +66,7 @@ struct TodayView: View {
                             totalTaskCount: max(1, todayTasks.count),
                             battleTrigger: $battleTrigger,
                             defeatTrigger: $defeatTrigger,
+                            orbCatchTrigger: $orbCatchTrigger,
                             onBattleComplete: {
                                 // Cancel defeat notification — user beat the monster
                                 if let task = currentBattleTask {
@@ -83,6 +93,7 @@ struct TodayView: View {
                                 battleMonsterType = nil
                                 enqueueOverdueDefeats()
                                 processNextDefeat()
+                                WidgetWriter.write(tasks: tasks, hero: hero)
                             },
                             onDefeatComplete: {
                                 // Mark inactive AFTER animation — preserves animation for late entry
@@ -96,8 +107,61 @@ struct TodayView: View {
                                 // Re-enqueue in case new deadlines passed during this animation
                                 enqueueOverdueDefeats()
                                 processNextDefeat()
+                                WidgetWriter.write(tasks: tasks, hero: hero)
+                            },
+                            onOrbCatchComplete: {
+                                withAnimation(.spring()) { showOrbPopup = true }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                                    withAnimation(.easeOut) { showOrbPopup = false }
+                                }
                             }
                         )
+
+                        // Orb earned popup
+                        if showOrbPopup {
+                            VStack(spacing: 6) {
+                                Text("SHIELD ORB OBTAINED")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.orange)
+                                    .tracking(1)
+                                HStack(spacing: 6) {
+                                    ForEach(0..<3) { i in
+                                        Image("+")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 22, height: 22)
+                                            .opacity(i < earnedOrbCount ? 1.0 : 0.2)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.black.opacity(0.75))
+                            .cornerRadius(14)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                            .padding(.top, 60)
+                        }
+
+                        // Orb used popup
+                        if showOrbUsedPopup {
+                            VStack(spacing: 6) {
+                                Text("SHIELD ORB USED")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.yellow)
+                                    .tracking(1)
+                                Text("Streak protected")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.black.opacity(0.75))
+                            .cornerRadius(14)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                            .padding(.top, 60)
+                        }
 
                         // Floating points label
                         if showFloatingPoints {
@@ -125,15 +189,26 @@ struct TodayView: View {
                                 .foregroundColor(.orange)
                                 .tracking(1)
                             Spacer()
-                            Text("\(tasks.filter { $0.isActive && !$0.isCompleted }.count) remaining")
-                                .font(.system(size: 11))
-                                .foregroundColor(Color(white: 0.4))
+                            let streak = AchievementService.currentWinStreak(dayRecords)
+                            if streak > 0 {
+                                HStack(spacing: 3) {
+                                    Text("🔥")
+                                        .font(.system(size: 13))
+                                    Text("\(streak)")
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundColor(.orange)
+                                }
+                            } else {
+                                Text("\(tasks.filter { $0.isActive && !$0.isCompleted }.count) remaining")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(Color(white: 0.4))
+                            }
                         }
                         .padding(.horizontal, 24)
                         .padding(.top, 20)
                         .padding(.bottom, 12)
 
-                        ForEach(tasks.filter { $0.isActive }) { task in
+                        ForEach(todayTasks) { task in
                             TaskRow(task: task, onBattle: { monsterType in
                                 currentBattleTask = task
                                 battleMonsterType = monsterType
@@ -142,6 +217,17 @@ struct TodayView: View {
                         }
                     }
                     .padding(.bottom, 24)
+
+                    #if DEBUG
+                    Button("⚙️ SIMULAR 2 DÍAS DE STREAK") {
+                        guard let goal = goals.first else { return }
+                        goal.daysCompleted = 2
+                        try? modelContext.save()
+                    }
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Color(white: 0.3))
+                    .padding(.bottom, 8)
+                    #endif
                 }
             }
         }
@@ -150,6 +236,7 @@ struct TodayView: View {
             appState.resetTasksIfNewDay(tasks: tasks, hero: hero, context: modelContext)
             enqueueOverdueDefeats()
             processNextDefeat()
+            if let hero { WidgetWriter.write(tasks: tasks, hero: hero) }
         }
         .onDisappear {
             // Reset all transient battle/defeat state — BattleSceneView is destroyed
@@ -161,6 +248,23 @@ struct TodayView: View {
             defeatMonsterType = nil
             currentBattleTask = nil
             battleMonsterType = nil
+        }
+        .onChange(of: appState.showDaySummary) { _, isShowing in
+            guard !isShowing else { return }
+            if orbUsedPending {
+                orbUsedPending = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    withAnimation(.spring()) { showOrbUsedPopup = true }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                        withAnimation(.easeOut) { showOrbUsedPopup = false }
+                    }
+                }
+            } else if appState.orbPending {
+                appState.orbPending = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    triggerOrbAnimation()
+                }
+            }
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active, isViewVisible else { return }
@@ -207,6 +311,10 @@ struct TodayView: View {
     }
 
     /// When all of today's tasks are resolved (completed or defeated), records the DayRecord and shows summary.
+    private func triggerOrbAnimation() {
+        orbCatchTrigger = true
+    }
+
     private func checkIfDayComplete() {
         let today = todayTasks   // only this routine's tasks
         guard !today.isEmpty else { return }
@@ -234,11 +342,29 @@ struct TodayView: View {
         let victories = battles.filter { $0.result == .victory }.count
         let record = DayRecord(date: Date(), battles: battles)
         record.dayWon = BattleService.isDayWon(victories: victories, total: battles.count)
+
+        // Shield orb protection: consume one orb to save a lost day
+        if !record.dayWon, let h = hero, h.shieldOrbs > 0 {
+            h.shieldOrbs -= 1
+            record.dayWon = true
+            orbUsedPending = true
+        }
+
         modelContext.insert(record)
 
         // Advance mountain progress if day won
         if record.dayWon, let goal = goals.first {
             goal.daysCompleted += 1
+            if goal.daysCompleted >= 90 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    appState.showChallengeComplete = true
+                }
+            }
+            if goal.daysCompleted % 3 == 0, let h = hero, h.shieldOrbs < 3 {
+                h.shieldOrbs += 1
+                earnedOrbCount = h.shieldOrbs
+                appState.orbPending = true
+            }
         }
 
         try? modelContext.save()
@@ -283,10 +409,16 @@ struct BattleSceneView: View {
     let totalTaskCount: Int
     @Binding var battleTrigger: Bool
     @Binding var defeatTrigger: Bool
+    @Binding var orbCatchTrigger: Bool
     let onBattleComplete: () -> Void
     let onDefeatComplete: () -> Void
+    let onOrbCatchComplete: () -> Void
 
     @State private var monsterHP: Double = 1.0
+
+    // Orb catch states
+    @State private var orbY: CGFloat = 5
+    @State private var orbOpacity: Double = 0
 
     // Hero
     @State private var heroXOffset: CGFloat = 0
@@ -415,6 +547,20 @@ struct BattleSceneView: View {
             .padding(.top, 52)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
+            // Orb catch — star icon centered on scene
+            if orbOpacity > 0 {
+                Image(systemName: "star.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 36, height: 36)
+                    .foregroundColor(.yellow)
+                    .shadow(color: .orange, radius: 10)
+                    .opacity(orbOpacity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, 140)
+                    .allowsHitTesting(false)
+            }
+
             // Monster intro overlay
             if showIntro {
                 ZStack {
@@ -455,6 +601,13 @@ struct BattleSceneView: View {
             guard newVal else { return }
             defeatTrigger = false
             startDefeat()
+        }
+        .onChange(of: orbCatchTrigger) { _, newVal in
+            guard newVal, phase == .idle else {
+                if newVal { orbCatchTrigger = false }
+                return
+            }
+            startOrbCatchSequence()
         }
         .onChange(of: ambientMonster?.id) { _, _ in
             // Only walk in the new monster if no defeat is already queued.
@@ -623,8 +776,8 @@ struct BattleSceneView: View {
             phase = .idle
             onBattleComplete()
             startAmbientHero()
-            // walkInNextMonster is triggered by onChange(of: ambientMonster?.id) to avoid
-            // conflicts when a defeat is also pending at the same time
+            guard defeatMonsterType == nil, !defeatTrigger else { return }
+            walkInNextMonster()
         }
     }
 
@@ -796,6 +949,56 @@ struct BattleSceneView: View {
         battleDelayTimer?.invalidate(); battleDelayTimer = nil
         hurtLingerTimer?.invalidate(); hurtLingerTimer = nil
     }
+
+    private func startOrbCatchSequence() {
+        orbCatchTrigger = false
+        stopAllTimers()
+
+        // 1 — Show star icon centered for 1.5s
+        orbOpacity = 1
+
+        // 2 — Hero walks toward orb (1.5s → 2.5s)
+        battleDelayTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
+            heroFlipped = false
+            startHeroWalkLoop(frames: hero.heroClass.walkFrames)
+            withAnimation(.linear(duration: 1.0)) { heroXOffset = 90 }
+
+            // 3 — Hero stops and high-jumps (2.5s → 3.5s)
+            battleDelayTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                stopHeroWalkLoop()
+                let jumpFrames = hero.heroClass.highJumpFrames
+                let peakFrame = jumpFrames.count / 2
+                var idx = 0
+                heroFrameTimer = Timer.scheduledTimer(withTimeInterval: 0.07, repeats: true) { t in
+                    if idx < jumpFrames.count {
+                        heroImage = jumpFrames[idx]
+                        if idx == peakFrame {
+                            withAnimation(.easeOut(duration: 0.15)) { orbOpacity = 0 }
+                        }
+                        idx += 1
+                    } else {
+                        t.invalidate()
+                        heroFrameTimer = nil
+
+                        // 4 — Hero walks back (3.5s → 4.5s)
+                        heroFlipped = true
+                        startHeroWalkLoop(frames: hero.heroClass.walkFrames)
+                        withAnimation(.linear(duration: 1.0)) { heroXOffset = 0 }
+
+                        battleDelayTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                            // 5 — Back to idle, show popup
+                            stopHeroWalkLoop()
+                            heroFlipped = false
+                            heroImage = hero.heroClass.idleFrames[0]
+                            startAmbientHero()
+                            startAmbientMonster()
+                            onOrbCatchComplete()
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // MARK: - HP Bar
@@ -868,6 +1071,10 @@ struct TaskRow: View {
                     Image(systemName: "checkmark")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(.green)
+                } else if !task.isActive {
+                    Text("Failed")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(Color(white: 0.35))
                 } else if canComplete {
                     Button {
                         let mt = task.monsterType

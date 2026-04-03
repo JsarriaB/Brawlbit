@@ -34,6 +34,9 @@ struct MonsterSetupView: View {
     @State private var showRoutine2 = false
     @State private var addTaskConfig: AddTaskConfig? = nil
 
+    @AppStorage("routine1Name") private var routine1Name = "WEEKDAYS"
+    @AppStorage("routine2Name") private var routine2Name = "WEEKEND"
+
     private var routine1Tasks: [PendingTask] { pendingTasks.filter { $0.routineIndex == 0 } }
     private var routine2Tasks: [PendingTask] { pendingTasks.filter { $0.routineIndex == 1 } }
 
@@ -44,16 +47,17 @@ struct MonsterSetupView: View {
     var body: some View {
         ZStack {
             Color(white: 0.07).ignoresSafeArea()
+            GlowBlobBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
 
                     // Header
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Your routines")
-                            .font(.title2.bold())
+                        Text("📋 Tus rutinas")
+                            .font(.system(size: 24, weight: .black, design: .rounded))
                             .foregroundColor(.white)
-                        Text("Up to 2 routines on different days of the week.")
-                            .font(.callout)
+                        Text("Hasta 2 rutinas en distintos días de la semana.")
+                            .font(.system(size: 14, design: .rounded))
                             .foregroundColor(Color(white: 0.45))
                     }
                     .padding(.horizontal, 24)
@@ -63,6 +67,7 @@ struct MonsterSetupView: View {
                     // Routine 1
                     RoutineSectionView(
                         label: "ROUTINE 1",
+                        name: $routine1Name,
                         tasks: routine1Tasks,
                         selectedDays: routine1Days,
                         blockedDays: showRoutine2 ? routine2Days : [],
@@ -81,6 +86,7 @@ struct MonsterSetupView: View {
 
                         RoutineSectionView(
                             label: "ROUTINE 2",
+                            name: $routine2Name,
                             tasks: routine2Tasks,
                             selectedDays: routine2Days,
                             blockedDays: routine1Days,
@@ -103,22 +109,12 @@ struct MonsterSetupView: View {
                         .padding(.top, 28)
                     }
 
-                    // CTA
-                    Button(action: saveTasks) {
-                        HStack(spacing: 8) {
-                            Text("Let's go!")
-                                .font(.system(size: 16, weight: .semibold))
-                            Image(systemName: "arrow.right")
-                                .font(.system(size: 13, weight: .semibold))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(canContinue ? Color.orange : Color(white: 0.15))
-                        .foregroundColor(canContinue ? .white : Color(white: 0.3))
-                        .cornerRadius(12)
-                    }
-                    .disabled(!canContinue)
-                    .padding(.horizontal, 28)
+                    OnboardingCTAButton(
+                        title: "¡A batallar! ⚔️",
+                        isEnabled: canContinue,
+                        action: saveTasks
+                    )
+                    .padding(.horizontal, 24)
                     .padding(.top, 40)
                     .padding(.bottom, 48)
                 }
@@ -187,6 +183,7 @@ struct MonsterSetupView: View {
 
 private struct RoutineSectionView: View {
     let label: String
+    @Binding var name: String
     let tasks: [PendingTask]
     let selectedDays: Set<Int>
     let blockedDays: Set<Int>
@@ -200,10 +197,16 @@ private struct RoutineSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
 
-            Text(label)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(.orange)
-                .tracking(1)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.orange)
+                    .tracking(1)
+                TextField("Routine name", text: $name)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
+                    .tint(.orange)
+            }
 
             // Day picker
             HStack(spacing: 6) {

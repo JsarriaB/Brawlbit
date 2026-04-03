@@ -9,15 +9,16 @@ struct HeroSelectionView: View {
     var body: some View {
         ZStack {
             Color(white: 0.07).ignoresSafeArea()
+            GlowBlobBackground()
             VStack(spacing: 0) {
 
                 // Header
                 VStack(spacing: 6) {
-                    Text("Choose your hero")
-                        .font(.title2.bold())
+                    Text("⚔️ Elige tu guerrero")
+                        .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundColor(.white)
-                    Text("Who will lead your battles?")
-                        .font(.callout)
+                    Text("¿Quién liderará tus batallas?")
+                        .font(.system(size: 14, design: .rounded))
                         .foregroundColor(Color(white: 0.45))
                 }
                 .padding(.top, 52)
@@ -74,22 +75,11 @@ struct HeroSelectionView: View {
                             )
                     }
 
-                    Button(action: onContinue) {
-                        HStack(spacing: 8) {
-                            Text("This is my hero")
-                                .font(.system(size: 16, weight: .semibold))
-                            Image(systemName: "arrow.right")
-                                .font(.system(size: 13, weight: .semibold))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(heroName.trimmingCharacters(in: .whitespaces).isEmpty
-                            ? Color(white: 0.15) : Color.orange)
-                        .foregroundColor(heroName.trimmingCharacters(in: .whitespaces).isEmpty
-                            ? Color(white: 0.3) : .white)
-                        .cornerRadius(12)
-                    }
-                    .disabled(heroName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    OnboardingCTAButton(
+                        title: "¡Este es mi guerrero!",
+                        isEnabled: !heroName.trimmingCharacters(in: .whitespaces).isEmpty,
+                        action: onContinue
+                    )
                 }
                 .padding(.horizontal, 28)
                 .padding(.bottom, 48)

@@ -8,6 +8,11 @@ struct RoutinesSettingsView: View {
     @State private var editingTask: MonsterTask? = nil
     @State private var showAddTask: AddTaskTarget? = nil
 
+    @AppStorage("routine1Name") private var routine1Name: String = "WEEKDAYS"
+    @AppStorage("routine2Name") private var routine2Name: String = "WEEKEND"
+    @State private var editingRoutineName: Int? = nil   // 0 or 1
+    @State private var routineNameInput: String = ""
+
     private var routine1Tasks: [MonsterTask] { tasks.filter { $0.routineIndex == 0 } }
     private var routine2Tasks: [MonsterTask] { tasks.filter { $0.routineIndex == 1 } }
     private var hasTwoRoutines: Bool { !routine2Tasks.isEmpty }
@@ -20,11 +25,11 @@ struct RoutinesSettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
 
-                    routineBlock(label: "ROUTINE 1", tasks: routine1Tasks, days: routine1Days, routineIndex: 0)
+                    routineBlock(label: routine1Name, tasks: routine1Tasks, days: routine1Days, routineIndex: 0)
 
                     if hasTwoRoutines {
                         divider()
-                        routineBlock(label: "ROUTINE 2", tasks: routine2Tasks, days: routine2Days, routineIndex: 1)
+                        routineBlock(label: routine2Name, tasks: routine2Tasks, days: routine2Days, routineIndex: 1)
 
                         Button(role: .destructive) {
                             for task in routine2Tasks { modelContext.delete(task) }
@@ -93,11 +98,37 @@ struct RoutinesSettingsView: View {
         let dayLetters = ["M", "T", "W", "T", "F", "S", "S"]
 
         VStack(alignment: .leading, spacing: 14) {
-            Text(label)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(.orange)
-                .tracking(1)
-                .padding(.horizontal, 24)
+            // Routine name with edit button
+            HStack(spacing: 8) {
+                if editingRoutineName == routineIndex {
+                    TextField("", text: $routineNameInput)
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(.orange)
+                        .tracking(1)
+                        .tint(.orange)
+                        .textInputAutocapitalization(.characters)
+                        .onSubmit { saveRoutineName(routineIndex) }
+                    Button { saveRoutineName(routineIndex) } label: {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(.orange)
+                    }
+                } else {
+                    Text(label)
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(.orange)
+                        .tracking(1)
+                    Button {
+                        routineNameInput = label
+                        editingRoutineName = routineIndex
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(white: 0.4))
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
 
             // Day pills
             HStack(spacing: 6) {
@@ -180,6 +211,13 @@ struct RoutinesSettingsView: View {
                 .padding(.horizontal, 24)
             }
         }
+    }
+
+    private func saveRoutineName(_ index: Int) {
+        let trimmed = routineNameInput.trimmingCharacters(in: .whitespaces).uppercased()
+        guard !trimmed.isEmpty else { editingRoutineName = nil; return }
+        if index == 0 { routine1Name = trimmed } else { routine2Name = trimmed }
+        editingRoutineName = nil
     }
 
     @ViewBuilder

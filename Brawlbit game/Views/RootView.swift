@@ -12,6 +12,9 @@ struct RootView: View {
                 .sheet(isPresented: $appState.showDaySummary) {
                     DaySummaryView()
                 }
+                .sheet(isPresented: $appState.showChallengeComplete) {
+                    ChallengeCompleteView()
+                }
         } else {
             OnboardingView()
                 .environment(appState)

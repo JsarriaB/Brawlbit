@@ -8,17 +8,76 @@
 
 /* Begin PBXBuildFile section */
 		CAA2604B2F759AC000AA7C9F /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAA2604A2F759AC000AA7C9F /* SpriteKit.framework */; };
+		CAA260A82F7E8D4F00AA7C9F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAA260A72F7E8D4F00AA7C9F /* WidgetKit.framework */; };
+		CAA260AA2F7E8D4F00AA7C9F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAA260A92F7E8D4F00AA7C9F /* SwiftUI.framework */; };
+		CAA260B52F7E8D5200AA7C9F /* BrawlbitWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CAA260A62F7E8D4F00AA7C9F /* BrawlbitWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CAA260B32F7E8D5200AA7C9F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAA260332F75977200AA7C9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CAA260A52F7E8D4F00AA7C9F;
+			remoteInfo = BrawlbitWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CAA260BA2F7E8D5200AA7C9F /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CAA260B52F7E8D5200AA7C9F /* BrawlbitWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		CAA2603B2F75977200AA7C9F /* Brawlbit game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brawlbit game.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAA2604A2F759AC000AA7C9F /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
+		CAA260A62F7E8D4F00AA7C9F /* BrawlbitWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BrawlbitWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAA260A72F7E8D4F00AA7C9F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		CAA260A92F7E8D4F00AA7C9F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		CAA260C22F7E94EC00AA7C9F /* BrawlbitWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BrawlbitWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CAA260B62F7E8D5200AA7C9F /* Exceptions for "BrawlbitWidget" folder in "BrawlbitWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CAA260A52F7E8D4F00AA7C9F /* BrawlbitWidgetExtension */;
+		};
+		CAA260C02F7E949100AA7C9F /* Exceptions for "Brawlbit game" folder in "BrawlbitWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Services/WidgetDataProvider.swift,
+			);
+			target = CAA260A52F7E8D4F00AA7C9F /* BrawlbitWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CAA2603D2F75977200AA7C9F /* Brawlbit game */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CAA260C02F7E949100AA7C9F /* Exceptions for "Brawlbit game" folder in "BrawlbitWidgetExtension" target */,
+			);
 			path = "Brawlbit game";
+			sourceTree = "<group>";
+		};
+		CAA260AB2F7E8D4F00AA7C9F /* BrawlbitWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CAA260B62F7E8D5200AA7C9F /* Exceptions for "BrawlbitWidget" folder in "BrawlbitWidgetExtension" target */,
+			);
+			path = BrawlbitWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,13 +91,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CAA260A32F7E8D4F00AA7C9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CAA260AA2F7E8D4F00AA7C9F /* SwiftUI.framework in Frameworks */,
+				CAA260A82F7E8D4F00AA7C9F /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		CAA260322F75977200AA7C9F = {
 			isa = PBXGroup;
 			children = (
+				CAA260C22F7E94EC00AA7C9F /* BrawlbitWidgetExtension.entitlements */,
 				CAA2603D2F75977200AA7C9F /* Brawlbit game */,
+				CAA260AB2F7E8D4F00AA7C9F /* BrawlbitWidget */,
 				CAA260492F759ABF00AA7C9F /* Frameworks */,
 				CAA2603C2F75977200AA7C9F /* Products */,
 			);
@@ -48,6 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				CAA2603B2F75977200AA7C9F /* Brawlbit game.app */,
+				CAA260A62F7E8D4F00AA7C9F /* BrawlbitWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -56,6 +127,8 @@
 			isa = PBXGroup;
 			children = (
 				CAA2604A2F759AC000AA7C9F /* SpriteKit.framework */,
+				CAA260A72F7E8D4F00AA7C9F /* WidgetKit.framework */,
+				CAA260A92F7E8D4F00AA7C9F /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -70,10 +143,12 @@
 				CAA260372F75977200AA7C9F /* Sources */,
 				CAA260382F75977200AA7C9F /* Frameworks */,
 				CAA260392F75977200AA7C9F /* Resources */,
+				CAA260BA2F7E8D5200AA7C9F /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CAA260B42F7E8D5200AA7C9F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CAA2603D2F75977200AA7C9F /* Brawlbit game */,
@@ -84,6 +159,28 @@
 			productName = "Brawlbit game";
 			productReference = CAA2603B2F75977200AA7C9F /* Brawlbit game.app */;
 			productType = "com.apple.product-type.application";
+		};
+		CAA260A52F7E8D4F00AA7C9F /* BrawlbitWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAA260B72F7E8D5200AA7C9F /* Build configuration list for PBXNativeTarget "BrawlbitWidgetExtension" */;
+			buildPhases = (
+				CAA260A22F7E8D4F00AA7C9F /* Sources */,
+				CAA260A32F7E8D4F00AA7C9F /* Frameworks */,
+				CAA260A42F7E8D4F00AA7C9F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CAA260AB2F7E8D4F00AA7C9F /* BrawlbitWidget */,
+			);
+			name = BrawlbitWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = BrawlbitWidgetExtension;
+			productReference = CAA260A62F7E8D4F00AA7C9F /* BrawlbitWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -96,6 +193,9 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					CAA2603A2F75977200AA7C9F = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					CAA260A52F7E8D4F00AA7C9F = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
 				};
@@ -115,12 +215,20 @@
 			projectRoot = "";
 			targets = (
 				CAA2603A2F75977200AA7C9F /* Brawlbit game */,
+				CAA260A52F7E8D4F00AA7C9F /* BrawlbitWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CAA260392F75977200AA7C9F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CAA260A42F7E8D4F00AA7C9F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -137,7 +245,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CAA260A22F7E8D4F00AA7C9F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CAA260B42F7E8D5200AA7C9F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CAA260A52F7E8D4F00AA7C9F /* BrawlbitWidgetExtension */;
+			targetProxy = CAA260B32F7E8D5200AA7C9F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		CAA260442F75977500AA7C9F /* Debug */ = {
@@ -266,6 +389,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Brawlbit game/Brawlbit game.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6V6A4FGK7C;
@@ -298,6 +422,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Brawlbit game/Brawlbit game.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6V6A4FGK7C;
@@ -325,6 +450,68 @@
 			};
 			name = Release;
 		};
+		CAA260B82F7E8D5200AA7C9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BrawlbitWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6V6A4FGK7C;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BrawlbitWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BrawlbitWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jorgesarria.Brawlbit-game.BrawlbitWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CAA260B92F7E8D5200AA7C9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BrawlbitWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6V6A4FGK7C;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BrawlbitWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BrawlbitWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jorgesarria.Brawlbit-game.BrawlbitWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -342,6 +529,15 @@
 			buildConfigurations = (
 				CAA260472F75977500AA7C9F /* Debug */,
 				CAA260482F75977500AA7C9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CAA260B72F7E8D5200AA7C9F /* Build configuration list for PBXNativeTarget "BrawlbitWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CAA260B82F7E8D5200AA7C9F /* Debug */,
+				CAA260B92F7E8D5200AA7C9F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

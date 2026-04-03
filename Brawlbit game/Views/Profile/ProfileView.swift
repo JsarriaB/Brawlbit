@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Combine
 
 // Helper so AddTaskSheet sheet knows which routine to add to
 struct AddTaskTarget: Identifiable {
@@ -10,12 +11,19 @@ struct AddTaskTarget: Identifiable {
 
 struct ProfileView: View {
     @Query private var heroes: [Hero]
+    @Query(filter: #Predicate<Goal90> { $0.isCompleted },
+           sort: \Goal90.completedAt,
+           order: .reverse) private var pastChallenges: [Goal90]
     @Environment(\.modelContext) private var modelContext
 
     var hero: Hero? { heroes.first }
 
     @State private var editingName = false
     @State private var nameInput = ""
+    @State private var heroFrame: Int = 0
+    @State private var isAnimating = false
+    private let frameTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+    private let cycleTimer = Timer.publish(every: 4.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationStack {
@@ -24,12 +32,17 @@ struct ProfileView: View {
                 ScrollView {
                     VStack(spacing: 0) {
 
+                        // ── Room banner ───────────────────────────────────
+                        if let hero {
+                            roomBanner(hero: hero)
+                        }
+
                         // ── Header card ──────────────────────────────────
                         if let hero {
                             headerCard(hero: hero)
-                                .padding(.horizontal, 24)
-                                .padding(.top, 56)
-                                .padding(.bottom, 32)
+                                .padding(.horizontal, 20)
+                                .padding(.top, -16)
+                                .padding(.bottom, 24)
                         }
 
                         // ── Section rows ─────────────────────────────────
@@ -69,12 +82,72 @@ struct ProfileView: View {
                         }
                         .background(Color(white: 0.12))
                         .cornerRadius(16)
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, 20)
+
+                        // ── Past Challenges ───────────────────────────────
+                        if !pastChallenges.isEmpty {
+                            pastChallengesSection()
+                        }
                     }
                     .padding(.bottom, 60)
                 }
             }
         }
+        .onReceive(frameTimer) { _ in
+            guard isAnimating, let hero else { return }
+            let frames = hero.heroClass.idleFrames
+            let next = heroFrame + 1
+            if next >= frames.count {
+                heroFrame = 0
+                isAnimating = false
+            } else {
+                heroFrame = next
+            }
+        }
+        .onReceive(cycleTimer) { _ in
+            isAnimating = true
+        }
+        .onAppear { isAnimating = true }
+        .onChange(of: hero?.heroClass) { heroFrame = 0 }
+    }
+
+    // MARK: - Room banner
+
+    @ViewBuilder
+    private func roomBanner(hero: Hero) -> some View {
+        let frames = hero.heroClass.idleFrames
+        ZStack(alignment: .bottom) {
+            Image(hero.heroClass.roomAssetName)
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity)
+                .frame(height: 300)
+                .scaleEffect(hero.heroClass == .knight ? 1.18 : 1.0, anchor: .center)
+                .offset(x: hero.heroClass == .knight ? 30 : 0)
+                .clipped()
+
+            LinearGradient(
+                colors: [Color(white: 0.07), Color.clear],
+                startPoint: .bottom,
+                endPoint: .init(x: 0.5, y: 0.35)
+            )
+
+            let spriteBottomPadding: CGFloat = {
+                switch hero.heroClass {
+                case .knight: return 44
+                case .rogue: return 38
+                case .mage: return 28
+                }
+            }()
+
+            Image(frames[heroFrame % frames.count])
+                .resizable()
+                .scaledToFit()
+                .frame(height: 140)
+                .padding(.bottom, spriteBottomPadding)
+        }
+        .frame(height: 300)
+        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - Header card
@@ -82,13 +155,6 @@ struct ProfileView: View {
     @ViewBuilder
     private func headerCard(hero: Hero) -> some View {
         VStack(spacing: 0) {
-            // Hero sprite
-            Image(hero.heroClass.idleFrames[0])
-                .resizable()
-                .scaledToFit()
-                .frame(width: 110, height: 110)
-                .padding(.bottom, 16)
-
             // Name (editable)
             if editingName {
                 HStack(spacing: 8) {
@@ -137,7 +203,7 @@ struct ProfileView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(18)
+        .padding(22)
         .background(Color(white: 0.12))
         .cornerRadius(16)
     }
@@ -147,6 +213,55 @@ struct ProfileView: View {
         if !trimmed.isEmpty { hero.name = trimmed }
         try? modelContext.save()
         editingName = false
+    }
+
+    // MARK: - Past Challenges
+
+    @ViewBuilder
+    private func pastChallengesSection() -> some View {
+        let dateFormatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateStyle = .medium
+            f.timeStyle = .none
+            return f
+        }()
+
+        VStack(alignment: .leading, spacing: 12) {
+            Text("PAST CHALLENGES")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(Color(white: 0.4))
+                .tracking(1)
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
+
+            VStack(spacing: 10) {
+                ForEach(pastChallenges) { challenge in
+                    HStack(spacing: 14) {
+                        Image("cup")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("\"" + challenge.goalText + "\"")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                                .lineLimit(2)
+                            if let completedAt = challenge.completedAt {
+                                Text("\(dateFormatter.string(from: challenge.startDate)) – \(dateFormatter.string(from: completedAt))  ·  90 days")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(Color(white: 0.35))
+                            }
+                        }
+                        Spacer()
+                    }
+                    .padding(14)
+                    .background(Color(white: 0.12))
+                    .cornerRadius(12)
+                    .padding(.horizontal, 24)
+                }
+            }
+        }
     }
 
     // MARK: - Row builder
@@ -181,8 +296,8 @@ struct ProfileView: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(Color(white: 0.3))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
         }
         .buttonStyle(.plain)
     }

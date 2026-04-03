@@ -6,6 +6,8 @@ final class Goal90 {
     var goalText: String
     var startDate: Date
     var daysCompleted: Int
+    var isCompleted: Bool = false
+    var completedAt: Date? = nil
 
     init(goalText: String) {
         self.goalText = goalText

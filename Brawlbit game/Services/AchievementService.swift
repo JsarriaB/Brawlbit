@@ -108,7 +108,7 @@ enum AchievementService {
 
     // MARK: - Private helpers
 
-    private static func currentWinStreak(_ records: [DayRecord]) -> Int {
+    static func currentWinStreak(_ records: [DayRecord]) -> Int {
         var streak = 0
         for r in records.sorted(by: { $0.date > $1.date }) {
             if r.dayWon { streak += 1 } else { break }

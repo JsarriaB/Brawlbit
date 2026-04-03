@@ -10,6 +10,7 @@ struct GoalSetupView: View {
     var body: some View {
         ZStack {
             Color(white: 0.07).ignoresSafeArea()
+            GlowBlobBackground()
             VStack(spacing: 0) {
                 Spacer()
 
@@ -17,14 +18,14 @@ struct GoalSetupView: View {
                     Text("🏔️")
                         .font(.system(size: 60))
 
-                    Text("What awaits you\nat the top?")
-                        .font(.title2.bold())
+                    Text("¿Qué te espera\nen la cima?")
+                        .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
 
-                    Text("After 90 days of battles,\nwhat will you have conquered?")
-                        .font(.callout)
+                    Text("Tras 90 días de batalla,\n¿qué habrás conquistado?")
+                        .font(.system(size: 14, design: .rounded))
                         .foregroundColor(Color(white: 0.45))
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
@@ -34,12 +35,12 @@ struct GoalSetupView: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("YOUR 90-DAY GOAL")
+                    Text("TU META DE 90 DÍAS")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.orange)
                         .tracking(1)
 
-                    TextField("Become more disciplined...", text: $goalText)
+                    TextField("Ser más disciplinado...", text: $goalText)
                         .font(.system(size: 16))
                         .foregroundColor(.white)
                         .tint(.orange)
@@ -55,23 +56,12 @@ struct GoalSetupView: View {
                 .padding(.horizontal, 28)
                 .padding(.bottom, 14)
 
-                Button(action: saveGoal) {
-                    HStack(spacing: 8) {
-                        Text("This is my goal")
-                            .font(.system(size: 16, weight: .semibold))
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 13, weight: .semibold))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(goalText.trimmingCharacters(in: .whitespaces).isEmpty
-                        ? Color(white: 0.15) : Color.orange)
-                    .foregroundColor(goalText.trimmingCharacters(in: .whitespaces).isEmpty
-                        ? Color(white: 0.3) : .white)
-                    .cornerRadius(12)
-                }
-                .disabled(goalText.trimmingCharacters(in: .whitespaces).isEmpty)
-                .padding(.horizontal, 28)
+                OnboardingCTAButton(
+                    title: "¡Esta es mi meta! 🏔️",
+                    isEnabled: !goalText.trimmingCharacters(in: .whitespaces).isEmpty,
+                    action: saveGoal
+                )
+                .padding(.horizontal, 24)
                 .padding(.bottom, 52)
             }
         }

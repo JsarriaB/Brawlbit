@@ -9,15 +9,16 @@ struct BattlegroundSelectionView: View {
     var body: some View {
         ZStack {
             Color(white: 0.07).ignoresSafeArea()
+            GlowBlobBackground()
             VStack(spacing: 0) {
 
                 // Header
                 VStack(spacing: 6) {
-                    Text("Choose your arena")
-                        .font(.title2.bold())
+                    Text("🏰 Elige tu arena")
+                        .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundColor(.white)
-                    Text("Where will your battles take place?")
-                        .font(.callout)
+                    Text("¿Dónde se librarán tus batallas?")
+                        .font(.system(size: 14, design: .rounded))
                         .foregroundColor(Color(white: 0.45))
                 }
                 .padding(.top, 52)
@@ -36,22 +37,9 @@ struct BattlegroundSelectionView: View {
 
                 Spacer()
 
-                // CTA
-                Button(action: onContinue) {
-                    HStack(spacing: 8) {
-                        Text("This is my arena")
-                            .font(.system(size: 16, weight: .semibold))
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 13, weight: .semibold))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.orange)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                }
-                .padding(.horizontal, 28)
-                .padding(.bottom, 52)
+                OnboardingCTAButton(title: "¡Esta es mi arena!", action: onContinue)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 52)
             }
         }
     }
