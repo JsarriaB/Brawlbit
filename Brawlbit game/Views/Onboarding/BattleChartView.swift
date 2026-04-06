@@ -136,7 +136,7 @@ struct BattleChartView: View {
                     .padding(.horizontal, 24)
                 }
 
-                OnboardingCTAButton(title: "¡Yo puedo lograrlo!", action: onContinue)
+                OnboardingCTAButton(title: "I can make it!", action: onContinue)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 48)
             }

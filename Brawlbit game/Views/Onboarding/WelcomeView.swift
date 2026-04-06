@@ -57,7 +57,6 @@ struct WelcomeView: View {
                 HStack(spacing: 10) {
                     TagChip(text: "🎮 Gamified", color: .orange)
                     TagChip(text: "🏆 90 days", color: Color(red: 0.85, green: 0.14, blue: 0.14))
-                    TagChip(text: "⚡ Free", color: Color(red: 0.45, green: 0.1, blue: 0.75))
                 }
                 .opacity(subtitleVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(0.6), value: subtitleVisible)

@@ -201,6 +201,28 @@ struct ProfileView: View {
                     .font(.system(size: 13))
                     .foregroundColor(Color(white: 0.45))
             }
+            .padding(.bottom, 12)
+
+            // XP bar
+            VStack(alignment: .leading, spacing: 4) {
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color(white: 0.18))
+                            .frame(height: 6)
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.orange)
+                            .frame(width: geo.size.width * AchievementService.xpProgress(for: hero.points),
+                                   height: 6)
+                    }
+                }
+                .frame(height: 6)
+
+                Text("\(AchievementService.xpInCurrentLevel(for: hero.points)) / \(AchievementService.xpPerLevel) XP")
+                    .font(.system(size: 10))
+                    .foregroundColor(Color(white: 0.35))
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(22)

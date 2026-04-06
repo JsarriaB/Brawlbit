@@ -24,7 +24,6 @@ struct MonsterSetupView: View {
 
     let heroName: String
     let heroClass: HeroClass
-    let heroGender: Gender
     let battleground: Battleground
     let onContinue: () -> Void
 
@@ -53,10 +52,10 @@ struct MonsterSetupView: View {
 
                     // Header
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("📋 Tus rutinas")
+                        Text("📋 Your routines")
                             .font(.system(size: 24, weight: .black, design: .rounded))
                             .foregroundColor(.white)
-                        Text("Hasta 2 rutinas en distintos días de la semana.")
+                        Text("Up to 2 routines on different days of the week.")
                             .font(.system(size: 14, design: .rounded))
                             .foregroundColor(Color(white: 0.45))
                     }
@@ -110,7 +109,7 @@ struct MonsterSetupView: View {
                     }
 
                     OnboardingCTAButton(
-                        title: "¡A batallar! ⚔️",
+                        title: "Let's battle! ⚔️",
                         isEnabled: canContinue,
                         action: saveTasks
                     )
@@ -153,7 +152,7 @@ struct MonsterSetupView: View {
     }
 
     private func saveTasks() {
-        let hero = Hero(name: heroName, heroClass: heroClass, gender: heroGender, battleground: battleground)
+        let hero = Hero(name: heroName, heroClass: heroClass, battleground: battleground)
         modelContext.insert(hero)
 
         var insertedTasks: [MonsterTask] = []
@@ -173,7 +172,6 @@ struct MonsterSetupView: View {
         }
 
         try? modelContext.save()
-        NotificationService.requestPermission()
         NotificationService.scheduleAll(tasks: insertedTasks)
         onContinue()
     }
@@ -192,7 +190,7 @@ private struct RoutineSectionView: View {
     let onAddTap: () -> Void
     let onRemove: (UUID) -> Void
 
-    private let dayLetters = ["M", "T", "W", "T", "F", "S", "S"]
+    private let dayLetters = ["M", "Tu", "W", "Th", "F", "Sa", "Su"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {

@@ -3,7 +3,6 @@ import SwiftUI
 struct HeroSelectionView: View {
     @Binding var heroName: String
     @Binding var heroClass: HeroClass
-    @Binding var heroGender: Gender
     let onContinue: () -> Void
 
     var body: some View {
@@ -14,10 +13,10 @@ struct HeroSelectionView: View {
 
                 // Header
                 VStack(spacing: 6) {
-                    Text("⚔️ Elige tu guerrero")
+                    Text("⚔️ Choose your warrior")
                         .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundColor(.white)
-                    Text("¿Quién liderará tus batallas?")
+                    Text("Who will lead your battles?")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(Color(white: 0.45))
                 }
@@ -76,7 +75,7 @@ struct HeroSelectionView: View {
                     }
 
                     OnboardingCTAButton(
-                        title: "¡Este es mi guerrero!",
+                        title: "This is my warrior!",
                         isEnabled: !heroName.trimmingCharacters(in: .whitespaces).isEmpty,
                         action: onContinue
                     )
@@ -118,6 +117,7 @@ struct AnimatedHeroCell: View {
                     .resizable()
                     .scaledToFit()
                     .padding(28)
+                    .offset(x: 10)
             }
             .frame(width: 260, height: 280)
             .onTapGesture {

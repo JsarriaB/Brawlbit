@@ -5,7 +5,6 @@ struct OnboardingView: View {
     @State private var step: OnboardingStep = .welcome
     @State private var heroName: String = ""
     @State private var heroClass: HeroClass = .knight
-    @State private var heroGender: Gender = .male
     @State private var heroBattleground: Battleground = .forest
 
     enum OnboardingStep {
@@ -32,8 +31,7 @@ struct OnboardingView: View {
         case .heroSelection:
             HeroSelectionView(
                 heroName: $heroName,
-                heroClass: $heroClass,
-                heroGender: $heroGender
+                heroClass: $heroClass
             ) { step = .beforeAfter1 }
 
         case .beforeAfter1:
@@ -116,7 +114,6 @@ struct OnboardingView: View {
             MonsterSetupView(
                 heroName: heroName,
                 heroClass: heroClass,
-                heroGender: heroGender,
                 battleground: heroBattleground
             ) { step = .goal }
 

@@ -12,6 +12,7 @@ struct RoutinesSettingsView: View {
     @AppStorage("routine2Name") private var routine2Name: String = "WEEKEND"
     @State private var editingRoutineName: Int? = nil   // 0 or 1
     @State private var routineNameInput: String = ""
+    @State private var showRemoveRoutine2Confirm = false
 
     private var routine1Tasks: [MonsterTask] { tasks.filter { $0.routineIndex == 0 } }
     private var routine2Tasks: [MonsterTask] { tasks.filter { $0.routineIndex == 1 } }
@@ -32,9 +33,7 @@ struct RoutinesSettingsView: View {
                         routineBlock(label: routine2Name, tasks: routine2Tasks, days: routine2Days, routineIndex: 1)
 
                         Button(role: .destructive) {
-                            for task in routine2Tasks { modelContext.delete(task) }
-                            try? modelContext.save()
-                            NotificationService.scheduleAll(tasks: routine1Tasks)
+                            showRemoveRoutine2Confirm = true
                         } label: {
                             Label("Remove Routine 2", systemImage: "trash")
                                 .font(.system(size: 13, weight: .medium))
@@ -60,6 +59,20 @@ struct RoutinesSettingsView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 60)
             }
+        }
+        .confirmationDialog(
+            "Remove Routine 2?",
+            isPresented: $showRemoveRoutine2Confirm,
+            titleVisibility: .visible
+        ) {
+            Button("Remove all tasks in Routine 2", role: .destructive) {
+                for task in routine2Tasks { modelContext.delete(task) }
+                try? modelContext.save()
+                NotificationService.scheduleAll(tasks: routine1Tasks)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will permanently delete all tasks in Routine 2.")
         }
         .navigationTitle("Routines")
         .navigationBarTitleDisplayMode(.inline)
@@ -95,7 +108,7 @@ struct RoutinesSettingsView: View {
 
     @ViewBuilder
     private func routineBlock(label: String, tasks: [MonsterTask], days: Set<Int>, routineIndex: Int) -> some View {
-        let dayLetters = ["M", "T", "W", "T", "F", "S", "S"]
+        let dayLetters = ["M", "Tu", "W", "Th", "F", "Sa", "Su"]
 
         VStack(alignment: .leading, spacing: 14) {
             // Routine name with edit button

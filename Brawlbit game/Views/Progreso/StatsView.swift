@@ -171,11 +171,9 @@ struct StatsView: View {
             Spacer()
             HStack(spacing: 6) {
                 ForEach(0..<3) { i in
-                    Image("+")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 26, height: 26)
-                        .opacity(i < hero.shieldOrbs ? 1.0 : 0.15)
+                    Image(systemName: i < hero.shieldOrbs ? "star.fill" : "star")
+                        .font(.system(size: 22))
+                        .foregroundColor(i < hero.shieldOrbs ? .orange : Color(white: 0.25))
                 }
             }
         }

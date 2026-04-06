@@ -47,7 +47,6 @@ enum AchievementService {
         let wonDays      = dayRecords.filter { $0.dayWon }
         let streak       = currentWinStreak(dayRecords)
         let losesBefore  = lossStreakBeforeLast(dayRecords)
-        let currentLvl   = level(for: hero.points)
 
         // ── First steps ────────────────────────────────────────────────────
         if totalVicts >= 1                          { unlock("first_task",    bonusPoints: 20) }
@@ -97,7 +96,8 @@ enum AchievementService {
             unlock("comeback", bonusPoints: 35)
         }
 
-        // ── Levels ─────────────────────────────────────────────────────────
+        // ── Levels — evaluated after all bonus points have been added ──────
+        let currentLvl = level(for: hero.points)
         if currentLvl >= 5                          { unlock("level_5",       bonusPoints: 20) }
         if currentLvl >= 10                         { unlock("level_10",      bonusPoints: 40) }
         if currentLvl >= 20                         { unlock("level_20",      bonusPoints: 80) }

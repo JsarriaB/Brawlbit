@@ -5,7 +5,6 @@ import Foundation
 final class Hero {
     var name: String
     var heroClass: HeroClass
-    var gender: Gender
     var battleground: Battleground
     var activeSkin: String
     var points: Int
@@ -13,10 +12,9 @@ final class Hero {
     var createdAt: Date
     var hp: Double   // 0.0–1.0, persists across the session
 
-    init(name: String, heroClass: HeroClass, gender: Gender, battleground: Battleground) {
+    init(name: String, heroClass: HeroClass, battleground: Battleground) {
         self.name = name
         self.heroClass = heroClass
-        self.gender = gender
         self.battleground = battleground
         self.activeSkin = "default"
         self.points = 0
@@ -148,17 +146,6 @@ enum HeroClass: String, Codable, CaseIterable {
         case .knight: return ["Knight/Knight/Jump_high/jump1"] + (2...12).map { "Knight/Knight/Jump_high/high_jump\($0)" }
         case .mage:   return (1...12).map { "Mage/Mage/High_jump/high_jump\($0)" }
         case .rogue:  return (1...12).map { "Rogue/Rogue/High_Jump/high_jump\($0)" }
-        }
-    }
-}
-
-enum Gender: String, Codable, CaseIterable {
-    case male, female
-
-    var displayName: String {
-        switch self {
-        case .male: return "Male"
-        case .female: return "Female"
         }
     }
 }

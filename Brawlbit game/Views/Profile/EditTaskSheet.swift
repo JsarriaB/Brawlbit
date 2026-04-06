@@ -13,7 +13,7 @@ struct EditTaskSheet: View {
     @State private var monsterType: MonsterType
     @State private var selectedDays: Set<Int>
 
-    private let dayLetters = ["M", "T", "W", "T", "F", "S", "S"]
+    private let dayLetters = ["M", "Tu", "W", "Th", "F", "Sa", "Su"]
 
     init(task: MonsterTask, blockedDays: Set<Int>) {
         self.task = task

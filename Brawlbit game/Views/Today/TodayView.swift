@@ -47,9 +47,17 @@ struct TodayView: View {
     @State private var orbUsedPending = false
     @State private var showOrbUsedPopup = false
 
+    // Late battle (avenge an expired task)
+    @State private var currentBattleIsLate = false
+    @State private var showLateVictoryBanner = false
+
     // Periodic check while app is open
     private let checkClock = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     @State private var isViewVisible = false
+
+    // Achievement banner
+    @State private var achievementQueue: [AchievementDef] = []
+    @State private var visibleAchievement: AchievementDef? = nil
 
     var body: some View {
         ZStack {
@@ -68,28 +76,43 @@ struct TodayView: View {
                             defeatTrigger: $defeatTrigger,
                             orbCatchTrigger: $orbCatchTrigger,
                             onBattleComplete: {
-                                // Cancel defeat notification — user beat the monster
-                                if let task = currentBattleTask {
-                                    NotificationService.cancelDefeatNotification(for: task)
-                                    currentBattleTask = nil
+                                if currentBattleIsLate {
+                                    // Late victory — small bonus, no notification cancel, no achievements
+                                    currentBattleIsLate = false
+                                    hero.points += 5
+                                    floatingPoints = 5
+                                    try? modelContext.save()
+                                    withAnimation(.easeOut(duration: 0.3)) { showFloatingPoints = true }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+                                        withAnimation(.easeIn(duration: 0.3)) { showFloatingPoints = false }
+                                    }
+                                    withAnimation(.spring()) { showLateVictoryBanner = true }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                                        withAnimation(.easeOut) { showLateVictoryBanner = false }
+                                    }
+                                } else {
+                                    // Normal victory
+                                    if let task = currentBattleTask {
+                                        NotificationService.cancelDefeatNotification(for: task)
+                                        currentBattleTask = nil
+                                    }
+                                    hero.points += 10
+                                    floatingPoints = 10
+                                    try? modelContext.save()
+                                    withAnimation(.easeOut(duration: 0.3)) { showFloatingPoints = true }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+                                        withAnimation(.easeIn(duration: 0.3)) { showFloatingPoints = false }
+                                    }
+                                    let newIds = AchievementService.checkAll(
+                                        hero: hero,
+                                        dayRecords: dayRecords,
+                                        unlocked: unlockedAchievements,
+                                        hasTwoRoutines: tasks.contains { $0.routineIndex == 1 },
+                                        goal90Days: goals.first?.daysCompleted ?? 0,
+                                        context: modelContext
+                                    )
+                                    handleNewAchievements(newIds)
                                 }
-                                // Award points
-                                hero.points += 10
-                                floatingPoints = 10
-                                try? modelContext.save()
-                                withAnimation(.easeOut(duration: 0.3)) { showFloatingPoints = true }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                                    withAnimation(.easeIn(duration: 0.3)) { showFloatingPoints = false }
-                                }
-                                // Check achievements that trigger on individual victories
-                                AchievementService.checkAll(
-                                    hero: hero,
-                                    dayRecords: dayRecords,
-                                    unlocked: unlockedAchievements,
-                                    hasTwoRoutines: tasks.contains { $0.routineIndex == 1 },
-                                    goal90Days: goals.first?.daysCompleted ?? 0,
-                                    context: modelContext
-                                )
                                 battleMonsterType = nil
                                 enqueueOverdueDefeats()
                                 processNextDefeat()
@@ -119,47 +142,102 @@ struct TodayView: View {
 
                         // Orb earned popup
                         if showOrbPopup {
-                            VStack(spacing: 6) {
-                                Text("SHIELD ORB OBTAINED")
-                                    .font(.system(size: 11, weight: .bold))
+                            HStack(spacing: 14) {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 30))
                                     .foregroundColor(.orange)
-                                    .tracking(1)
-                                HStack(spacing: 6) {
-                                    ForEach(0..<3) { i in
-                                        Image("+")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 22, height: 22)
-                                            .opacity(i < earnedOrbCount ? 1.0 : 0.2)
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("SHIELD ORB EARNED")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(.orange)
+                                        .tracking(1)
+                                    HStack(spacing: 5) {
+                                        ForEach(0..<3) { i in
+                                            Image(systemName: i < earnedOrbCount ? "star.fill" : "star")
+                                                .font(.system(size: 17))
+                                                .foregroundColor(i < earnedOrbCount ? .orange : Color(white: 0.3))
+                                        }
                                     }
                                 }
                             }
                             .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.black.opacity(0.75))
-                            .cornerRadius(14)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(white: 0.1))
+                                    .overlay(RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.orange.opacity(0.45), lineWidth: 1))
+                            )
                             .transition(.move(edge: .top).combined(with: .opacity))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 60)
+                        }
+
+                        // Late victory banner
+                        if showLateVictoryBanner {
+                            HStack(spacing: 14) {
+                                Image(systemName: "clock.badge.checkmark")
+                                    .font(.system(size: 28))
+                                    .foregroundColor(.yellow)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("LATE VICTORY")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(.yellow)
+                                        .tracking(1)
+                                    Text("Better late than never. +5 pts")
+                                        .font(.system(size: 12, design: .rounded))
+                                        .foregroundColor(Color(white: 0.7))
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(white: 0.1))
+                                    .overlay(RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.yellow.opacity(0.45), lineWidth: 1))
+                            )
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                            .padding(.horizontal, 24)
                             .padding(.top, 60)
                         }
 
                         // Orb used popup
                         if showOrbUsedPopup {
-                            VStack(spacing: 6) {
-                                Text("SHIELD ORB USED")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(.yellow)
-                                    .tracking(1)
-                                Text("Streak protected")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(.white)
+                            HStack(spacing: 14) {
+                                Image(systemName: "shield.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.cyan)
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("STREAK PROTECTED")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(.cyan)
+                                        .tracking(1)
+                                    Text("A shield orb was consumed")
+                                        .font(.system(size: 12, design: .rounded))
+                                        .foregroundColor(Color(white: 0.7))
+                                    HStack(spacing: 5) {
+                                        ForEach(0..<3) { i in
+                                            Image(systemName: i < hero.shieldOrbs ? "star.fill" : "star")
+                                                .font(.system(size: 15))
+                                                .foregroundColor(i < hero.shieldOrbs ? .orange : Color(white: 0.25))
+                                        }
+                                    }
+                                }
                             }
                             .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.black.opacity(0.75))
-                            .cornerRadius(14)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(white: 0.1))
+                                    .overlay(RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.cyan.opacity(0.45), lineWidth: 1))
+                            )
                             .transition(.move(edge: .top).combined(with: .opacity))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                            .padding(.horizontal, 24)
                             .padding(.top, 60)
                         }
 
@@ -199,9 +277,15 @@ struct TodayView: View {
                                         .foregroundColor(.orange)
                                 }
                             } else {
-                                Text("\(tasks.filter { $0.isActive && !$0.isCompleted }.count) remaining")
-                                    .font(.system(size: 11))
-                                    .foregroundColor(Color(white: 0.4))
+                                if tasks.filter({ $0.isActive && !$0.isCompleted }).isEmpty {
+                                    Text("All done! ✓")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(.green)
+                                } else {
+                                    Text("\(tasks.filter { $0.isActive && !$0.isCompleted }.count) remaining")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(Color(white: 0.4))
+                                }
                             }
                         }
                         .padding(.horizontal, 24)
@@ -209,17 +293,26 @@ struct TodayView: View {
                         .padding(.bottom, 12)
 
                         ForEach(todayTasks) { task in
-                            TaskRow(task: task, onBattle: { monsterType in
-                                currentBattleTask = task
-                                battleMonsterType = monsterType
-                                battleTrigger = true
-                            })
+                            TaskRow(
+                                task: task,
+                                onBattle: { monsterType in
+                                    currentBattleTask = task
+                                    battleMonsterType = monsterType
+                                    battleTrigger = true
+                                },
+                                onLateBattle: { monsterType in
+                                    currentBattleIsLate = true
+                                    currentBattleTask = nil
+                                    battleMonsterType = monsterType
+                                    battleTrigger = true
+                                }
+                            )
                         }
                     }
                     .padding(.bottom, 24)
 
                     #if DEBUG
-                    Button("⚙️ SIMULAR 2 DÍAS DE STREAK") {
+                    Button("⚙️ SIMULATE 2 STREAK DAYS") {
                         guard let goal = goals.first else { return }
                         goal.daysCompleted = 2
                         try? modelContext.save()
@@ -276,6 +369,15 @@ struct TodayView: View {
             enqueueOverdueDefeats()
             processNextDefeat()
         }
+        .overlay(alignment: .top) {
+            if let achievement = visibleAchievement {
+                AchievementBannerView(achievement: achievement)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .padding(.top, 100)
+                    .allowsHitTesting(false)
+            }
+        }
+        .animation(.spring(response: 0.4, dampingFraction: 0.75), value: visibleAchievement?.id)
     }
 
     /// Collects all overdue tasks not yet queued or in animation, sorted by deadline,
@@ -369,21 +471,43 @@ struct TodayView: View {
 
         try? modelContext.save()
 
-        // Check achievements after the day is recorded
+        // Check achievements after the day is recorded — dayRecords + [record] includes today
         if let h = hero {
-            AchievementService.checkAll(
+            let newIds = AchievementService.checkAll(
                 hero: h,
-                dayRecords: dayRecords,
+                dayRecords: dayRecords + [record],
                 unlocked: unlockedAchievements,
                 hasTwoRoutines: tasks.contains { $0.routineIndex == 1 },
                 goal90Days: goals.first?.daysCompleted ?? 0,
                 context: modelContext
             )
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                handleNewAchievements(newIds)
+            }
         }
 
         // Show day summary after a short delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             appState.showDaySummary = true
+        }
+    }
+
+    // MARK: - Achievement banner
+
+    private func handleNewAchievements(_ ids: [String]) {
+        let defs = ids.compactMap { AchievementCatalog.def(id: $0) }
+        guard !defs.isEmpty else { return }
+        achievementQueue.append(contentsOf: defs)
+        if visibleAchievement == nil { showNextAchievement() }
+    }
+
+    private func showNextAchievement() {
+        guard !achievementQueue.isEmpty else { return }
+        let next = achievementQueue.removeFirst()
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) { visibleAchievement = next }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+            withAnimation(.easeOut(duration: 0.3)) { visibleAchievement = nil }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { showNextAchievement() }
         }
     }
 }
@@ -1032,6 +1156,7 @@ struct HPBarView: View {
 struct TaskRow: View {
     let task: MonsterTask
     let onBattle: (MonsterType) -> Void
+    let onLateBattle: (MonsterType) -> Void
     @Environment(\.modelContext) private var modelContext
 
     private let clock = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
@@ -1072,9 +1197,20 @@ struct TaskRow: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(.green)
                 } else if !task.isActive {
-                    Text("Failed")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(Color(white: 0.35))
+                    Button {
+                        task.isCompleted = true
+                        task.completedAt = Date.now
+                        try? modelContext.save()
+                        onLateBattle(task.monsterType)
+                    } label: {
+                        Text("⚔️ Avenge")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(Color(red: 0.45, green: 0.08, blue: 0.08))
+                            .cornerRadius(8)
+                    }
                 } else if canComplete {
                     Button {
                         let mt = task.monsterType
@@ -1102,5 +1238,58 @@ struct TaskRow: View {
             .fill(Color(white: 1, opacity: 0.06))
             .frame(height: 1)
             .padding(.horizontal, 24)
+    }
+}
+
+// MARK: - Achievement Banner
+
+private struct AchievementBannerView: View {
+    let achievement: AchievementDef
+
+    private var tierColor: Color {
+        switch achievement.difficulty {
+        case .easy:   return Color(red: 0.8, green: 0.55, blue: 0.25)
+        case .medium: return Color(red: 0.75, green: 0.77, blue: 0.85)
+        case .hard:   return Color(red: 1.0, green: 0.82, blue: 0.1)
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(tierColor.opacity(0.2))
+                    .frame(width: 44, height: 44)
+                Image(systemName: achievement.icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(tierColor)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("ACHIEVEMENT UNLOCKED")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(tierColor)
+                    .tracking(1)
+                Text(achievement.title)
+                    .font(.system(size: 15, weight: .black))
+                    .foregroundColor(.white)
+                Text("+\(achievement.points) pts")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Color(white: 0.5))
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.88))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(tierColor.opacity(0.5), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal, 20)
     }
 }

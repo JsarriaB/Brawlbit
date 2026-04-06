@@ -16,7 +16,7 @@ struct ReviewsView: View {
                     VStack(spacing: 24) {
                         Spacer().frame(height: 24)
 
-                        Text("⚔️ Guerreros que\nya lo lograron")
+                        Text("⚔️ Warriors who\nalready made it")
                             .font(.system(size: 26, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
@@ -29,9 +29,9 @@ struct ReviewsView: View {
                             name: "Alejandro M.",
                             avatar: "🧑‍💻",
                             avatarColor: Color(red: 0.15, green: 0.08, blue: 0.35),
-                            title: "Cambió mi rutina por completo",
-                            reviewBody: "Llevaba años intentando ser más constante. Con Brawlbit lo convertí en un juego. Llevo 73 días sin fallar ni uno.",
-                            days: "73 días"
+                            title: "It completely changed my routine",
+                            reviewBody: "I'd been trying to be more consistent for years. With Brawlbit I turned it into a game. 73 days without missing a single one.",
+                            days: "73 days"
                         )
                         .offset(x: card1Visible ? 0 : -40)
                         .opacity(card1Visible ? 1 : 0)
@@ -41,9 +41,9 @@ struct ReviewsView: View {
                             name: "Sara R.",
                             avatar: "👩‍🎤",
                             avatarColor: Color(red: 0.35, green: 0.08, blue: 0.08),
-                            title: "La gamificación es adictiva",
-                            reviewBody: "Ver cómo el monstruo se acerca cuando se acaba el tiempo me da un empuje que ninguna otra app me había dado. ¡Brutal!",
-                            days: "51 días"
+                            title: "The gamification is addictive",
+                            reviewBody: "Watching the monster approach as time runs out gives me a push no other app has given me. Brutal!",
+                            days: "51 days"
                         )
                         .offset(x: card2Visible ? 0 : 40)
                         .opacity(card2Visible ? 1 : 0)
@@ -54,7 +54,7 @@ struct ReviewsView: View {
                     .padding(.horizontal, 24)
                 }
 
-                OnboardingCTAButton(title: "Continuar", action: onContinue)
+                OnboardingCTAButton(title: "Continue", action: onContinue)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 48)
             }
@@ -87,7 +87,7 @@ private struct ReviewCard: View {
                     Text(name)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                    Text("★★★★★  · \(days) de racha")
+                    Text("★★★★★  · \(days) streak")
                         .font(.system(size: 11))
                         .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.1))
                 }

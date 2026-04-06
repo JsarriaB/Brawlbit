@@ -163,7 +163,7 @@ private struct DayDetailSheet: View {
                         return a.taskName < b.taskName
                     }
 
-                    ForEach(sorted, id: \.taskName) { battle in
+                    ForEach(Array(sorted.enumerated()), id: \.offset) { _, battle in
                         HStack(spacing: 14) {
                             Image(systemName: battle.result == .victory ? "checkmark.circle.fill" : "xmark.circle.fill")
                                 .font(.system(size: 20))

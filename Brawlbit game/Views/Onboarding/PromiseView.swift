@@ -8,10 +8,10 @@ struct PromiseView: View {
     @State private var itemsVisible: [Bool] = [false, false, false, false]
 
     private let vows = [
-        ("⚔️", "Derrotaré a cada monstruo antes del límite"),
-        ("🏔️", "Escalaré la montaña de 90 días"),
-        ("🔥", "Mantendré mi racha de victorias"),
-        ("🏆", "Lucharé cada día sin excusas"),
+        ("⚔️", "I will defeat every monster before the deadline"),
+        ("🏔️", "I will climb the 90-day mountain"),
+        ("🔥", "I will keep my winning streak"),
+        ("🏆", "I will fight every day without excuses"),
     ]
 
     var body: some View {
@@ -35,11 +35,11 @@ struct PromiseView: View {
                     VStack(spacing: 8) {
                         Text("⚔️")
                             .font(.system(size: 48))
-                        Text("Juramento del Guerrero")
+                        Text("Warrior's Oath")
                             .font(.system(size: 24, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
-                        Text("Antes de comenzar tu aventura,\nhaz este juramento.")
+                        Text("Before you begin your adventure,\ntake this oath.")
                             .font(.system(size: 14, design: .rounded))
                             .foregroundColor(Color(white: 0.45))
                             .multilineTextAlignment(.center)
@@ -78,7 +78,7 @@ struct PromiseView: View {
 
                 Spacer()
 
-                OnboardingCTAButton(title: "¡Lo juro! 💪", icon: nil) {
+                OnboardingCTAButton(title: "I swear it! 💪", icon: nil) {
                     withAnimation { showingNotifications = true }
                 }
                 .padding(.horizontal, 24)
@@ -113,12 +113,12 @@ private struct NotificationsPromptView: View {
                         .font(.system(size: 52))
 
                     VStack(spacing: 8) {
-                        Text("No pierdas ninguna batalla")
+                        Text("Don't miss a single battle")
                             .font(.system(size: 24, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
 
-                        Text("Activa los recordatorios y te avisamos\nantes de que el monstruo te venza.")
+                        Text("Enable reminders and we'll warn you\nbefore the monster defeats you.")
                             .font(.system(size: 14, design: .rounded))
                             .foregroundColor(Color(white: 0.45))
                             .multilineTextAlignment(.center)
@@ -130,15 +130,15 @@ private struct NotificationsPromptView: View {
                             .font(.system(size: 28))
                             .foregroundColor(.orange)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("⚔️ Medusa · 5 minutos restantes")
+                            Text("⚔️ Medusa · 5 minutes remaining")
                                 .font(.system(size: 13, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
-                            Text("FINAL WARNING — ¡ataca ya! ⚠️")
+                            Text("FINAL WARNING — attack now! ⚠️")
                                 .font(.system(size: 11, design: .rounded))
                                 .foregroundColor(Color(white: 0.5))
                         }
                         Spacer()
-                        Text("Ahora")
+                        Text("Now")
                             .font(.system(size: 10))
                             .foregroundColor(Color(white: 0.4))
                     }
@@ -155,14 +155,14 @@ private struct NotificationsPromptView: View {
                 Spacer()
 
                 VStack(spacing: 12) {
-                    OnboardingCTAButton(title: "Activar recordatorios 🔔", icon: nil) {
+                    OnboardingCTAButton(title: "Enable reminders 🔔", icon: nil) {
                         UNUserNotificationCenter.current()
                             .requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
                                 DispatchQueue.main.async { onContinue() }
                             }
                     }
 
-                    Button("Ahora no") {
+                    Button("Not now") {
                         onContinue()
                     }
                     .font(.system(size: 14, design: .rounded))

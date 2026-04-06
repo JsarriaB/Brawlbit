@@ -14,10 +14,10 @@ struct BattlegroundSelectionView: View {
 
                 // Header
                 VStack(spacing: 6) {
-                    Text("🏰 Elige tu arena")
+                    Text("🏰 Choose your arena")
                         .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundColor(.white)
-                    Text("¿Dónde se librarán tus batallas?")
+                    Text("Where will your battles take place?")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(Color(white: 0.45))
                 }
@@ -37,7 +37,7 @@ struct BattlegroundSelectionView: View {
 
                 Spacer()
 
-                OnboardingCTAButton(title: "¡Esta es mi arena!", action: onContinue)
+                OnboardingCTAButton(title: "This is my arena!", action: onContinue)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 52)
             }

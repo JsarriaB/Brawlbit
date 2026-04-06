@@ -18,13 +18,13 @@ struct GoalSetupView: View {
                     Text("🏔️")
                         .font(.system(size: 60))
 
-                    Text("¿Qué te espera\nen la cima?")
+                    Text("What awaits you\nat the summit?")
                         .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
 
-                    Text("Tras 90 días de batalla,\n¿qué habrás conquistado?")
+                    Text("After 90 days of battle,\nwhat will you have conquered?")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(Color(white: 0.45))
                         .multilineTextAlignment(.center)
@@ -35,12 +35,12 @@ struct GoalSetupView: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("TU META DE 90 DÍAS")
+                    Text("YOUR 90-DAY GOAL")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.orange)
                         .tracking(1)
 
-                    TextField("Ser más disciplinado...", text: $goalText)
+                    TextField("Be more disciplined...", text: $goalText)
                         .font(.system(size: 16))
                         .foregroundColor(.white)
                         .tint(.orange)
@@ -57,7 +57,7 @@ struct GoalSetupView: View {
                 .padding(.bottom, 14)
 
                 OnboardingCTAButton(
-                    title: "¡Esta es mi meta! 🏔️",
+                    title: "This is my goal! 🏔️",
                     isEnabled: !goalText.trimmingCharacters(in: .whitespaces).isEmpty,
                     action: saveGoal
                 )
