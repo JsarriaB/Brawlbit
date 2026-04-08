@@ -38,6 +38,13 @@ enum AchievementService {
             guard !unlockedIds.contains(id), !newIds.contains(id) else { return }
             context.insert(UnlockedAchievement(achievementId: id))
             hero.points += bonusPoints
+            if let def = AchievementCatalog.all.first(where: { $0.id == id }) {
+                switch def.difficulty {
+                case .easy:   hero.coins += 15
+                case .medium: hero.coins += 30
+                case .hard:   hero.coins += 60
+                }
+            }
             newIds.append(id)
         }
 

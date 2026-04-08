@@ -25,6 +25,7 @@ struct MonsterSetupView: View {
     let heroName: String
     let heroClass: HeroClass
     let battleground: Battleground
+    let easyMode: Bool
     let onContinue: () -> Void
 
     @State private var pendingTasks: [PendingTask] = []
@@ -153,6 +154,7 @@ struct MonsterSetupView: View {
 
     private func saveTasks() {
         let hero = Hero(name: heroName, heroClass: heroClass, battleground: battleground)
+        hero.easyMode = easyMode
         modelContext.insert(hero)
 
         var insertedTasks: [MonsterTask] = []

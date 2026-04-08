@@ -38,17 +38,42 @@ struct HistoryView: View {
                         ForEach(records) { record in
                             Button { selectedRecord = record } label: {
                                 HStack(spacing: 14) {
-                                    Text(record.dayWon ? "⚔️" : "💀")
-                                        .font(.system(size: 26))
-                                        .frame(width: 40)
+                                    // Colored circle icon
+                                    ZStack {
+                                        Circle()
+                                            .fill(record.dayWon
+                                                  ? Color.green.opacity(0.18)
+                                                  : Color(red: 0.55, green: 0.08, blue: 0.08).opacity(0.5))
+                                            .frame(width: 46, height: 46)
+                                        Text(record.dayWon ? "⚔️" : "💀")
+                                            .font(.system(size: 22))
+                                    }
 
-                                    VStack(alignment: .leading, spacing: 3) {
+                                    VStack(alignment: .leading, spacing: 5) {
                                         Text(record.date.formatted(date: .abbreviated, time: .omitted))
                                             .font(.system(size: 15, weight: .semibold))
                                             .foregroundColor(.white)
+
+                                        // W/L label
                                         Text("\(record.victoriesCount)W · \(record.defeatsCount)L · \(record.battles.count) tasks")
                                             .font(.system(size: 12))
                                             .foregroundColor(Color(white: 0.4))
+
+                                        // Mini task completion bar
+                                        if record.battles.count > 0 {
+                                            let ratio = Double(record.victoriesCount) / Double(record.battles.count)
+                                            GeometryReader { geo in
+                                                ZStack(alignment: .leading) {
+                                                    RoundedRectangle(cornerRadius: 2)
+                                                        .fill(Color(white: 0.18))
+                                                        .frame(height: 4)
+                                                    RoundedRectangle(cornerRadius: 2)
+                                                        .fill(record.dayWon ? Color.green : Color(red: 0.8, green: 0.2, blue: 0.2))
+                                                        .frame(width: geo.size.width * ratio, height: 4)
+                                                }
+                                            }
+                                            .frame(height: 4)
+                                        }
                                     }
 
                                     Spacer()
@@ -92,9 +117,30 @@ private struct DayDetailSheet: View {
     let record: DayRecord
     @Environment(\.dismiss) private var dismiss
 
+    private var accentColor: Color {
+        record.dayWon ? .green : Color(red: 0.75, green: 0.15, blue: 0.15)
+    }
+
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            // Base dark background
+            Color(white: 0.06).ignoresSafeArea()
+
+            // Subtle gradient at the top
+            VStack {
+                LinearGradient(
+                    colors: [
+                        accentColor.opacity(0.22),
+                        accentColor.opacity(0.06),
+                        Color.clear
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 220)
+                .ignoresSafeArea(edges: .top)
+                Spacer()
+            }
 
             VStack(spacing: 0) {
                 // Handle
@@ -111,7 +157,7 @@ private struct DayDetailSheet: View {
 
                     Text(record.dayWon ? "VICTORY" : "DEFEAT")
                         .font(.system(size: 28, weight: .black))
-                        .foregroundColor(record.dayWon ? .green : .red)
+                        .foregroundColor(accentColor)
 
                     Text(record.date.formatted(date: .long, time: .omitted))
                         .font(.system(size: 13))
@@ -156,7 +202,6 @@ private struct DayDetailSheet: View {
                     .padding(.bottom, 12)
 
                     let sorted = record.battles.sorted { a, b in
-                        // Victories first, then alphabetical
                         if a.result != b.result {
                             return a.result == .victory
                         }

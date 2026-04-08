@@ -96,8 +96,14 @@ struct TodayView: View {
                                         NotificationService.cancelDefeatNotification(for: task)
                                         currentBattleTask = nil
                                     }
+                                    let levelBefore = AchievementService.level(for: hero.points)
                                     hero.points += 10
+                                    hero.coins += 3
                                     floatingPoints = 10
+                                    let levelAfter = AchievementService.level(for: hero.points)
+                                    if levelAfter > levelBefore {
+                                        hero.coins += (levelAfter - levelBefore) * 25
+                                    }
                                     try? modelContext.save()
                                     withAnimation(.easeOut(duration: 0.3)) { showFloatingPoints = true }
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
@@ -311,16 +317,6 @@ struct TodayView: View {
                     }
                     .padding(.bottom, 24)
 
-                    #if DEBUG
-                    Button("⚙️ SIMULATE 2 STREAK DAYS") {
-                        guard let goal = goals.first else { return }
-                        goal.daysCompleted = 2
-                        try? modelContext.save()
-                    }
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(Color(white: 0.3))
-                    .padding(.bottom, 8)
-                    #endif
                 }
             }
         }
@@ -436,7 +432,10 @@ struct TodayView: View {
             let b = Battle(taskName: task.taskName,
                            monsterType: task.monsterType.rawValue,
                            deadline: task.deadlineToday)
-            b.result = task.isCompleted ? .victory : .defeat
+            let isLate = task.isCompleted
+                && (task.completedAt.map { $0 > task.deadlineToday } ?? false)
+            let countsAsVictory = task.isCompleted && (!isLate || hero?.easyMode == true)
+            b.result = countsAsVictory ? BattleResult.victory : BattleResult.defeat
             b.completedAt = task.completedAt
             return b
         }
@@ -456,6 +455,7 @@ struct TodayView: View {
 
         // Advance mountain progress if day won
         if record.dayWon, let goal = goals.first {
+            hero?.coins += 15
             goal.daysCompleted += 1
             if goal.daysCompleted >= 90 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {

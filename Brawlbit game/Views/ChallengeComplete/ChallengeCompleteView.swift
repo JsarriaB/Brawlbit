@@ -6,7 +6,7 @@ struct ChallengeCompleteView: View {
     @Query private var dayRecords: [DayRecord]
     @Query private var heroes: [Hero]
     @Environment(\.modelContext) private var modelContext
-    @Environment(AppState.self) private var appState
+    @Environment(\.dismiss) private var dismiss
 
     @State private var showNewChallenge = false
     @State private var heroFrame = 0
@@ -48,8 +48,8 @@ struct ChallengeCompleteView: View {
                         Image("Mountain")
                             .resizable()
                             .scaledToFill()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: geo.size.height * 0.40)
+                            .frame(width: geo.size.width)
+                            .frame(height: geo.size.height * 0.40, alignment: .top)
                             .clipped()
 
                         GeometryReader { inner in
@@ -66,8 +66,8 @@ struct ChallengeCompleteView: View {
                                 Image(hero.heroClass.idleFrames[heroFrame % hero.heroClass.idleFrames.count])
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 48, height: 48)
-                                    .position(x: summitX - 20, y: summitY + 4)
+                                    .frame(width: 80, height: 80)
+                                    .position(x: summitX + 10, y: summitY + 4)
                             }
                         }
                         .frame(height: geo.size.height * 0.40)
@@ -172,7 +172,7 @@ struct ChallengeCompleteView: View {
         modelContext.insert(newGoal)
         try? modelContext.save()
         showNewChallenge = false
-        appState.showChallengeComplete = false
+        dismiss()
     }
 }
 

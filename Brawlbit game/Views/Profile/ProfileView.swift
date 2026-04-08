@@ -72,6 +72,17 @@ struct ProfileView: View {
                             rowDivider()
 
                             settingsRow(
+                                icon: "shield.lefthalf.filled",
+                                iconColor: .blue,
+                                title: "Game Mode",
+                                subtitle: (hero?.easyMode ?? true) ? "Easy — Revenges count as victories" : "Hard — A missed deadline is a defeat"
+                            ) {
+                                if let hero { GameModeSettingsView(hero: hero) }
+                            }
+
+                            rowDivider()
+
+                            settingsRow(
                                 icon: "bell.fill",
                                 iconColor: .red,
                                 title: "Notifications",
@@ -154,7 +165,7 @@ struct ProfileView: View {
 
     @ViewBuilder
     private func headerCard(hero: Hero) -> some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             // Name (editable)
             if editingName {
                 HStack(spacing: 8) {
@@ -162,7 +173,6 @@ struct ProfileView: View {
                         .font(.system(size: 26, weight: .black))
                         .foregroundColor(.white)
                         .tint(.orange)
-                        .multilineTextAlignment(.center)
                         .onSubmit { saveName(hero: hero) }
                     Button(action: { saveName(hero: hero) }) {
                         Image(systemName: "checkmark.circle.fill")
@@ -188,18 +198,24 @@ struct ProfileView: View {
                 .padding(.bottom, 10)
             }
 
-            // Level + class
-            HStack(spacing: 10) {
-                Text("LVL \(AchievementService.level(for: hero.points))")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Color.orange)
-                    .cornerRadius(7)
-                Text(hero.heroClass.displayName)
-                    .font(.system(size: 13))
-                    .foregroundColor(Color(white: 0.45))
+            // Coins (left) + Level & class (right)
+            HStack {
+                HStack(spacing: 4) {
+                    Text("🪙")
+                        .font(.system(size: 14))
+                    Text("\(hero.coins)")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(Color(red: 1.0, green: 0.82, blue: 0.2))
+                }
+                Spacer()
+                HStack(spacing: 8) {
+                    Text("\(AchievementService.level(for: hero.points))")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundColor(.orange)
+                    Text(hero.heroClass.displayName)
+                        .font(.system(size: 13))
+                        .foregroundColor(Color(white: 0.45))
+                }
             }
             .padding(.bottom, 12)
 

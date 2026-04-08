@@ -19,6 +19,10 @@ struct HeroSelectionView: View {
                     Text("Who will lead your battles?")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(Color(white: 0.45))
+                    Text("🪙 The rest can be unlocked later with coins")
+                        .font(.system(size: 11, design: .rounded))
+                        .foregroundColor(Color(white: 0.3))
+                        .padding(.top, 2)
                 }
                 .padding(.top, 52)
                 .padding(.bottom, 24)

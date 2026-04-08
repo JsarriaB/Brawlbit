@@ -15,6 +15,9 @@ struct RootView: View {
                 .sheet(isPresented: $appState.showChallengeComplete) {
                     ChallengeCompleteView()
                 }
+                .onReceive(NotificationCenter.default.publisher(for: .init("showChallengeComplete"))) { _ in
+                    appState.showChallengeComplete = true
+                }
         } else {
             OnboardingView()
                 .environment(appState)

@@ -8,9 +8,19 @@ final class Hero {
     var battleground: Battleground
     var activeSkin: String
     var points: Int
+    var coins: Int = 0
     var shieldOrbs: Int = 0
     var createdAt: Date
     var hp: Double   // 0.0–1.0, persists across the session
+    /// Raw values of HeroClass cases the user owns (starts with the chosen one)
+    var unlockedHeroClasses: [String] = []
+    /// Raw values of Battleground cases the user owns (starts with the chosen one)
+    var unlockedBattlegrounds: [String] = []
+    /// true = easy (revenges count as victories), false = hard (missed deadline = defeat)
+    var easyMode: Bool = true
+
+    static let heroCost = 500
+    static let arenaCost = 200
 
     init(name: String, heroClass: HeroClass, battleground: Battleground) {
         self.name = name
@@ -18,8 +28,11 @@ final class Hero {
         self.battleground = battleground
         self.activeSkin = "default"
         self.points = 0
+        self.coins = 0
         self.createdAt = Date()
         self.hp = 1.0
+        self.unlockedHeroClasses = [heroClass.rawValue]
+        self.unlockedBattlegrounds = [battleground.rawValue]
     }
 }
 

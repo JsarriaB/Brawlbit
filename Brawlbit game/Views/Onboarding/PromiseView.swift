@@ -4,19 +4,25 @@ import UserNotifications
 struct PromiseView: View {
     let onContinue: () -> Void
 
+    @State private var showingManuscript    = false
     @State private var showingNotifications = false
-    @State private var itemsVisible: [Bool] = [false, false, false, false]
+    @State private var itemsVisible: [Bool] = [false, false, false, false, false]
 
     private let vows = [
         ("⚔️", "I will defeat every monster before the deadline"),
         ("🏔️", "I will climb the 90-day mountain"),
         ("🔥", "I will keep my winning streak"),
         ("🏆", "I will fight every day without excuses"),
+        ("🚫", "I will not fake victories or mark done what I haven't done"),
     ]
 
     var body: some View {
         if showingNotifications {
             NotificationsPromptView(onContinue: onContinue)
+        } else if showingManuscript {
+            ManuscriptView {
+                withAnimation { showingNotifications = true }
+            }
         } else {
             promiseBody
         }
@@ -79,7 +85,7 @@ struct PromiseView: View {
                 Spacer()
 
                 OnboardingCTAButton(title: "I swear it! 💪", icon: nil) {
-                    withAnimation { showingNotifications = true }
+                    withAnimation { showingManuscript = true }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 52)
@@ -90,6 +96,162 @@ struct PromiseView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.25 + 0.3) {
                     itemsVisible[i] = true
                 }
+            }
+        }
+    }
+}
+
+// MARK: - Signature canvas
+
+private struct SignatureCanvasView: View {
+    @Binding var lines: [[CGPoint]]
+    @State private var currentLine: [CGPoint] = []
+
+    var body: some View {
+        Canvas { ctx, size in
+            for line in lines + (currentLine.isEmpty ? [] : [currentLine]) {
+                var path = Path()
+                guard line.count > 1 else { continue }
+                path.move(to: line[0])
+                for pt in line.dropFirst() { path.addLine(to: pt) }
+                ctx.stroke(path,
+                           with: .color(Color(red: 0.1, green: 0.05, blue: 0.3)),
+                           style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round))
+            }
+        }
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { v in currentLine.append(v.location) }
+                .onEnded { _ in
+                    if !currentLine.isEmpty { lines.append(currentLine) }
+                    currentLine = []
+                }
+        )
+    }
+}
+
+// MARK: - Manuscript signing screen
+
+private struct ManuscriptView: View {
+    let onContinue: () -> Void
+
+    @State private var signatureLines: [[CGPoint]] = []
+    @State private var scrollVisible = false
+
+    private var hasSigned: Bool { !signatureLines.isEmpty }
+
+    private let oathLines = [
+        "I hereby swear, on my honor as a warrior,",
+        "that I will fight every day without excuses,",
+        "that I will not lie about my progress,",
+        "and that I will never mark done",
+        "what I have not truly accomplished.",
+        "",
+        "My word is my blade.",
+    ]
+
+    var body: some View {
+        ZStack {
+            Color(white: 0.07).ignoresSafeArea()
+            GlowBlobBackground()
+
+            VStack(spacing: 0) {
+                Spacer()
+
+                Text("✍️")
+                    .font(.system(size: 44))
+                    .padding(.bottom, 12)
+
+                Text("Sign the Oath")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.bottom, 6)
+
+                Text("Sign with your finger to seal the oath.")
+                    .font(.system(size: 13, design: .rounded))
+                    .foregroundColor(Color(white: 0.4))
+                    .padding(.bottom, 28)
+
+                // Parchment scroll
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(red: 0.96, green: 0.91, blue: 0.78))
+                        .shadow(color: .black.opacity(0.5), radius: 12, x: 0, y: 4)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(oathLines, id: \.self) { line in
+                            Text(line)
+                                .font(.system(size: 14, design: .serif))
+                                .foregroundColor(Color(red: 0.15, green: 0.10, blue: 0.05))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        Divider()
+                            .background(Color(red: 0.3, green: 0.2, blue: 0.1).opacity(0.4))
+                            .padding(.top, 12)
+
+                        HStack(alignment: .bottom) {
+                            Text("Signed:")
+                                .font(.system(size: 11, weight: .semibold, design: .serif))
+                                .foregroundColor(Color(red: 0.35, green: 0.22, blue: 0.10))
+
+                            Spacer()
+
+                            if hasSigned {
+                                Button {
+                                    signatureLines = []
+                                } label: {
+                                    Text("Clear")
+                                        .font(.system(size: 11, design: .serif))
+                                        .foregroundColor(Color(red: 0.5, green: 0.3, blue: 0.15))
+                                }
+                            }
+                        }
+                        .padding(.top, 4)
+
+                        // Drawing area
+                        ZStack(alignment: .center) {
+                            Rectangle()
+                                .fill(Color(red: 0.93, green: 0.87, blue: 0.70))
+                                .frame(height: 150)
+                                .cornerRadius(8)
+
+                            if !hasSigned {
+                                Text("Sign here")
+                                    .font(.system(size: 15, design: .serif))
+                                    .foregroundColor(Color(red: 0.6, green: 0.45, blue: 0.25).opacity(0.5))
+                            }
+
+                            SignatureCanvasView(lines: $signatureLines)
+                                .frame(height: 150)
+                                .cornerRadius(8)
+                        }
+
+                        Rectangle()
+                            .fill(Color(red: 0.3, green: 0.2, blue: 0.1).opacity(0.35))
+                            .frame(height: 1)
+                    }
+                    .padding(24)
+                }
+                .padding(.horizontal, 28)
+                .offset(y: scrollVisible ? 0 : 30)
+                .opacity(scrollVisible ? 1 : 0)
+                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: scrollVisible)
+
+                Spacer()
+
+                OnboardingCTAButton(
+                    title: "I sign my oath ✍️",
+                    isEnabled: hasSigned,
+                    action: onContinue
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 52)
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                scrollVisible = true
             }
         }
     }

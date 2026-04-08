@@ -6,6 +6,7 @@ struct OnboardingView: View {
     @State private var heroName: String = ""
     @State private var heroClass: HeroClass = .knight
     @State private var heroBattleground: Battleground = .forest
+    @State private var easyMode: Bool = true
 
     enum OnboardingStep {
         case welcome
@@ -17,6 +18,7 @@ struct OnboardingView: View {
         case analyzing
         case chart
         case reviews
+        case battleDemo
         case battleground
         case monsterSetup
         case goal
@@ -103,7 +105,13 @@ struct OnboardingView: View {
             BattleChartView { step = .reviews }
 
         case .reviews:
-            ReviewsView { step = .battleground }
+            ReviewsView { step = .battleDemo }
+
+        case .battleDemo:
+            BattleDemoView { chosen in
+                easyMode = chosen
+                step = .battleground
+            }
 
         case .battleground:
             BattlegroundSelectionView(battleground: $heroBattleground) {
@@ -114,7 +122,8 @@ struct OnboardingView: View {
             MonsterSetupView(
                 heroName: heroName,
                 heroClass: heroClass,
-                battleground: heroBattleground
+                battleground: heroBattleground,
+                easyMode: easyMode
             ) { step = .goal }
 
         case .goal:

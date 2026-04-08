@@ -120,17 +120,23 @@ struct StatsView: View {
                     .foregroundColor(.white)
 
                 HStack(spacing: 8) {
-                    Text("LVL \(lvl)")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.orange)
-                        .cornerRadius(6)
+                    Text("\(lvl)")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundColor(.orange)
 
                     Text(hero.heroClass.displayName)
                         .font(.system(size: 12))
                         .foregroundColor(Color(white: 0.45))
+
+                    Spacer()
+
+                    HStack(spacing: 4) {
+                        Text("🪙")
+                            .font(.system(size: 13))
+                        Text("\(hero.coins)")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(Color(red: 1.0, green: 0.82, blue: 0.2))
+                    }
                 }
 
                 // XP bar
