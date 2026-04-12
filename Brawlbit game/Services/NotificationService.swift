@@ -96,6 +96,39 @@ enum NotificationService {
         }
     }
 
+    /// Schedules a one-shot 20:00 notification for today warning the streak is at risk.
+    /// Call at day reset. Safe to call multiple times — cancels previous before scheduling.
+    static func scheduleStreakWarning(streak: Int) {
+        let enabled = UserDefaults.standard.object(forKey: "notif_streak_warning") as? Bool ?? true
+        guard enabled, streak > 0 else { return }
+
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: ["streak_warning_today"])
+
+        var dc = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        dc.hour = 20
+        dc.minute = 0
+        dc.second = 0
+        guard let fireDate = Calendar.current.date(from: dc), fireDate > Date() else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = "🔥 Your streak is at risk!"
+        content.body  = "\(streak)-day streak on the line — don't let the monsters win today."
+        content.sound = .default
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dc, repeats: false)
+        let request = UNNotificationRequest(identifier: "streak_warning_today",
+                                            content: content,
+                                            trigger: trigger)
+        center.add(request, withCompletionHandler: nil)
+    }
+
+    /// Cancels today's streak-at-risk notification (call when the day is won).
+    static func cancelStreakWarning() {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: ["streak_warning_today"])
+    }
+
     /// Cancel today's defeat notification when the user wins (completes the task before deadline).
     static func cancelDefeatNotification(for task: MonsterTask) {
         UNUserNotificationCenter.current()

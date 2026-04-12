@@ -4,11 +4,12 @@ import SwiftData
 struct NotificationsSettingsView: View {
     @Query(sort: \MonsterTask.order) private var tasks: [MonsterTask]
 
-    @AppStorage("notif_battle_start") private var notifBattleStart = true
-    @AppStorage("notif_3h")           private var notif3h = true
-    @AppStorage("notif_30min")        private var notif30min = true
-    @AppStorage("notif_5min")         private var notif5min = true
-    @AppStorage("notif_defeat")       private var notifDefeat = true
+    @AppStorage("notif_battle_start")   private var notifBattleStart = true
+    @AppStorage("notif_3h")             private var notif3h = true
+    @AppStorage("notif_30min")          private var notif30min = true
+    @AppStorage("notif_5min")           private var notif5min = true
+    @AppStorage("notif_defeat")         private var notifDefeat = true
+    @AppStorage("notif_streak_warning") private var notifStreakWarning = true
 
     var body: some View {
         ZStack {
@@ -52,6 +53,13 @@ struct NotificationsSettingsView: View {
                             title: "Defeat",
                             subtitle: "When you miss a task deadline",
                             binding: $notifDefeat
+                        )
+                        rowDivider()
+                        notifRow(
+                            icon: "flame.fill", iconColor: .yellow,
+                            title: "Streak at risk",
+                            subtitle: "Evening reminder if you haven't won the day yet",
+                            binding: $notifStreakWarning
                         )
                     }
                     .background(Color(white: 0.12))

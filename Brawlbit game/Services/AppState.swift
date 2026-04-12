@@ -40,4 +40,16 @@ final class AppState {
         UserDefaults.standard.removeObject(forKey: "lastSummaryDate")
         WidgetWriter.write(tasks: tasks, hero: hero)
     }
+
+    /// Returns true if the hero currently has an active vacation that covers today.
+    func isOnVacation(hero: Hero?) -> Bool {
+        let cal = Calendar.current
+        guard let end = hero?.vacationEndDate else { return false }
+        let today = cal.startOfDay(for: Date())
+        let endDay = cal.startOfDay(for: end)
+        if today <= endDay { return true }
+        // Vacation expired — clear it
+        hero?.vacationEndDate = nil
+        return false
+    }
 }

@@ -27,15 +27,21 @@ struct ProfileView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 Color(white: 0.07).ignoresSafeArea()
+
+                // ── Fixed room banner ─────────────────────────────────
+                if let hero {
+                    roomBanner(hero: hero)
+                        .ignoresSafeArea(edges: .top)
+                        .zIndex(1)
+                }
+
                 ScrollView {
                     VStack(spacing: 0) {
 
-                        // ── Room banner ───────────────────────────────────
-                        if let hero {
-                            roomBanner(hero: hero)
-                        }
+                        // Spacer that sits behind the fixed banner
+                        Color.clear.frame(height: 300)
 
                         // ── Header card ──────────────────────────────────
                         if let hero {
@@ -89,6 +95,28 @@ struct ProfileView: View {
                                 subtitle: "Alerts and reminders"
                             ) {
                                 NotificationsSettingsView()
+                            }
+
+                            rowDivider()
+
+                            settingsRow(
+                                icon: "lock.shield.fill",
+                                iconColor: Color(red: 0.2, green: 0.6, blue: 0.4),
+                                title: "Data & Privacy",
+                                subtitle: "Export, delete or view your data"
+                            ) {
+                                DataPrivacySettingsView()
+                            }
+
+                            rowDivider()
+
+                            settingsRow(
+                                icon: "ellipsis.circle.fill",
+                                iconColor: Color(white: 0.35),
+                                title: "About",
+                                subtitle: "Version, rate, contact & legal"
+                            ) {
+                                AboutView()
                             }
                         }
                         .background(Color(white: 0.12))

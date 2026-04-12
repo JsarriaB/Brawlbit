@@ -18,6 +18,8 @@ final class Hero {
     var unlockedBattlegrounds: [String] = []
     /// true = easy (revenges count as victories), false = hard (missed deadline = defeat)
     var easyMode: Bool = true
+    /// End date of an active vacation (inclusive). nil = no vacation active.
+    var vacationEndDate: Date? = nil
 
     static let heroCost = 500
     static let arenaCost = 200

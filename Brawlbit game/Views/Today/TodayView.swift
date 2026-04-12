@@ -323,6 +323,8 @@ struct TodayView: View {
         .onAppear {
             isViewVisible = true
             appState.resetTasksIfNewDay(tasks: tasks, hero: hero, context: modelContext)
+            let streak = AchievementService.currentWinStreak(dayRecords)
+            NotificationService.scheduleStreakWarning(streak: streak)
             enqueueOverdueDefeats()
             processNextDefeat()
             if let hero { WidgetWriter.write(tasks: tasks, hero: hero) }
@@ -414,6 +416,9 @@ struct TodayView: View {
     }
 
     private func checkIfDayComplete() {
+        // Skip recording wins/losses while on vacation
+        guard !appState.isOnVacation(hero: hero) else { return }
+
         let today = todayTasks   // only this routine's tasks
         guard !today.isEmpty else { return }
         // A task is resolved if completed (victory) or deactivated by the defeat sequence
@@ -449,6 +454,11 @@ struct TodayView: View {
             h.shieldOrbs -= 1
             record.dayWon = true
             orbUsedPending = true
+        }
+
+        // Day is won — cancel the streak-at-risk notification
+        if record.dayWon {
+            NotificationService.cancelStreakWarning()
         }
 
         modelContext.insert(record)
@@ -560,6 +570,8 @@ struct BattleSceneView: View {
 
     @State private var phase: BattlePhase = .idle
 
+    @AppStorage("reduceAnimations") private var reduceAnimations: Bool = false
+
     // Monster intro overlay
     @State private var showIntro: Bool = false
     @State private var introMonsterName: String = ""
@@ -607,7 +619,7 @@ struct BattleSceneView: View {
 
             HStack(alignment: .bottom, spacing: 0) {
                 // Hero
-                Image(heroImage.isEmpty ? hero.heroClass.idleFrames[0] : heroImage)
+                Image(heroImage.isEmpty ? (hero.heroClass.idleFrames.first ?? "") : heroImage)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -624,7 +636,7 @@ struct BattleSceneView: View {
 
                 // Monster — opacity instead of if/else to avoid layout shifts
                 if let mt = sceneMonsterType {
-                    Image(monsterImage.isEmpty ? mt.idleFrames[0] : monsterImage)
+                    Image(monsterImage.isEmpty ? (mt.idleFrames.first ?? "") : monsterImage)
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -747,6 +759,7 @@ struct BattleSceneView: View {
 
     private func startAmbientHero() {
         guard phase == .idle else { return }
+        guard !reduceAnimations else { return }
         heroWaitTimer?.invalidate()
         let frames = hero.heroClass.jumpFrames
         let idle = hero.heroClass.idleFrames[0]
@@ -769,6 +782,7 @@ struct BattleSceneView: View {
 
     private func startAmbientMonster() {
         guard phase == .idle, let mt = sceneMonsterType else { return }
+        guard !reduceAnimations else { return }
         monsterWaitTimer?.invalidate()
         let frames = mt.walkFrames
         let idle = mt.idleFrames[0]
