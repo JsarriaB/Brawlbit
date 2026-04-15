@@ -10,6 +10,7 @@ struct AddTaskTarget: Identifiable {
 }
 
 struct ProfileView: View {
+    @AppStorage("hasSeenTutorial") private var hasSeenTutorial: Bool = false
     @Query private var heroes: [Hero]
     @Query(filter: #Predicate<Goal90> { $0.isCompleted },
            sort: \Goal90.completedAt,
@@ -89,6 +90,17 @@ struct ProfileView: View {
                             rowDivider()
 
                             settingsRow(
+                                icon: "mountain.2.fill",
+                                iconColor: Color(red: 0.15, green: 0.50, blue: 0.85),
+                                title: "Mountain Goal",
+                                subtitle: "Edit your challenge or reset progress"
+                            ) {
+                                MountainGoalSettingsView()
+                            }
+
+                            rowDivider()
+
+                            settingsRow(
                                 icon: "bell.fill",
                                 iconColor: .red,
                                 title: "Notifications",
@@ -117,6 +129,61 @@ struct ProfileView: View {
                                 subtitle: "Version, rate, contact & legal"
                             ) {
                                 AboutView()
+                            }
+
+                            rowDivider()
+
+                            // Replay tutorial button (not a NavigationLink)
+                            Button {
+                                hasSeenTutorial = false
+                            } label: {
+                                HStack(spacing: 14) {
+                                    Image(systemName: "questionmark.circle.fill")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color.indigo)
+                                        .cornerRadius(8)
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Tutorial")
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.white)
+                                        Text("Replay the app guide")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Color(white: 0.4))
+                                    }
+                                    Spacer()
+                                    Image(systemName: "arrow.counterclockwise")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(Color(white: 0.3))
+                                }
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 16)
+                            }
+                            .buttonStyle(.plain)
+
+                            // ── TEMP: Paywall previews (remove before launch) ──
+                            rowDivider()
+
+                            settingsRow(
+                                icon: "creditcard.fill",
+                                iconColor: Color(red: 0.8, green: 0.3, blue: 0.0),
+                                title: "Paywall Preview 1",
+                                subtitle: "Main paywall · 3 plans"
+                            ) {
+                                PaywallPreview1View()
+                            }
+
+                            rowDivider()
+
+                            settingsRow(
+                                icon: "timer",
+                                iconColor: .red,
+                                title: "Paywall Preview 2",
+                                subtitle: "Exit-intent · countdown · 50% off"
+                            ) {
+                                PaywallPreview2View()
                             }
                         }
                         .background(Color(white: 0.12))

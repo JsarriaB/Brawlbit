@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ProgresoView: View {
-    @State private var selectedTab: Int = 0
+    @AppStorage("progresoSelectedTab") private var selectedTab: Int = 0
 
     var body: some View {
         VStack(spacing: 0) {

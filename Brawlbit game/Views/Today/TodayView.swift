@@ -602,20 +602,6 @@ struct BattleSceneView: View {
                 endPoint: .init(x: 0.5, y: 0.5)
             )
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Today")
-                    .font(.title.bold())
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
-                Text(Date.now.formatted(date: .long, time: .omitted))
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
-                    .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
 
             HStack(alignment: .bottom, spacing: 0) {
                 // Hero

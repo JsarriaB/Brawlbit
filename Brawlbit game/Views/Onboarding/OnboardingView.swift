@@ -23,6 +23,7 @@ struct OnboardingView: View {
         case monsterSetup
         case goal
         case promise
+        case subscription
     }
 
     var body: some View {
@@ -130,7 +131,10 @@ struct OnboardingView: View {
             GoalSetupView { step = .promise }
 
         case .promise:
-            PromiseView { appState.hasCompletedOnboarding = true }
+            PromiseView { step = .subscription }
+
+        case .subscription:
+            SubscriptionView { appState.hasCompletedOnboarding = true }
         }
     }
 }

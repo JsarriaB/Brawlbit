@@ -1,8 +1,13 @@
 import SwiftUI
 import SwiftData
+import SuperwallKit
 
 @main
 struct Brawlbit_gameApp: App {
+    init() {
+        Superwall.configure(apiKey: "pk_DqeulzREeHP16fpKZhYKQ")
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()

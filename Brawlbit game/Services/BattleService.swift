@@ -12,6 +12,6 @@ enum BattleService {
     /// Day is won if strictly more than 50% of battles are victories.
     static func isDayWon(victories: Int, total: Int) -> Bool {
         guard total > 0 else { return false }
-        return Double(victories) / Double(total) > 0.5
+        return Double(victories) / Double(total) >= 0.5
     }
 }
