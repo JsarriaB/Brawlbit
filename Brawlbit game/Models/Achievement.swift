@@ -10,6 +10,7 @@ struct AchievementDef: Identifiable {
     let icon: String        // SF Symbol
     let points: Int
     let difficulty: Difficulty
+    var isSecret: Bool = false
 
     enum Difficulty {
         case easy, medium, hard
@@ -107,6 +108,31 @@ struct AchievementCatalog {
         AchievementDef(id: "points_2000",   title: "Millionaire",
                        desc: "Earn 2000 points in total",
                        icon: "trophy.fill", points: 60, difficulty: .hard),
+
+        // ── Secret achievements ────────────────────────────────────────────
+        AchievementDef(id: "early_bird",    title: "Early Bird",
+                       desc: "Win a day with all tasks completed before 8:00 AM",
+                       icon: "sun.horizon.fill", points: 40, difficulty: .medium, isSecret: true),
+
+        AchievementDef(id: "phoenix",       title: "Phoenix",
+                       desc: "Win a day when your hero's HP was nearly gone",
+                       icon: "flame.circle.fill", points: 80, difficulty: .hard, isSecret: true),
+
+        AchievementDef(id: "century",       title: "Century",
+                       desc: "Win 100 days in total",
+                       icon: "100.circle.fill", points: 100, difficulty: .hard, isSecret: true),
+
+        AchievementDef(id: "speed_demon",   title: "Speed Demon",
+                       desc: "Complete 3 tasks within 5 minutes",
+                       icon: "bolt.circle.fill", points: 45, difficulty: .medium, isSecret: true),
+
+        AchievementDef(id: "fortnight",     title: "Fortnight",
+                       desc: "Win 14 days in a row",
+                       icon: "14.circle.fill", points: 60, difficulty: .medium, isSecret: true),
+
+        AchievementDef(id: "shape_shifter", title: "Shape Shifter",
+                       desc: "Unlock all hero classes",
+                       icon: "person.2.fill", points: 50, difficulty: .medium, isSecret: true),
     ]
 
     static func def(id: String) -> AchievementDef? { all.first { $0.id == id } }

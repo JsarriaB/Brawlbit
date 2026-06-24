@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct AboutView: View {
+    @Environment(\.openURL) private var openURL
+
     private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
-
-    // Replace with real App Store ID once the app is published
-    private let appStoreId = "XXXXXXXXXX"
+    private let appStoreId = "6762140119"
 
     var body: some View {
         ZStack {
@@ -30,23 +30,17 @@ struct AboutView: View {
                     sectionHeader("SUPPORT")
 
                     VStack(spacing: 0) {
-                        actionRow(
-                            icon: "star.fill", iconColor: .yellow,
-                            title: "Rate Brawlbit"
-                        ) {
+                        actionRow(icon: "star.fill", iconColor: .yellow, title: "Rate Brawlbit") {
                             if let url = URL(string: "itms-apps://itunes.apple.com/app/id\(appStoreId)?action=write-review") {
-                                UIApplication.shared.open(url)
+                                openURL(url)
                             }
                         }
 
                         rowDivider()
 
-                        actionRow(
-                            icon: "envelope.fill", iconColor: .blue,
-                            title: "Contact support"
-                        ) {
+                        actionRow(icon: "envelope.fill", iconColor: .blue, title: "Contact support") {
                             if let url = URL(string: "mailto:jsarriab28@gmail.com?subject=Brawlbit%20Support") {
-                                UIApplication.shared.open(url)
+                                openURL(url)
                             }
                         }
                     }
@@ -58,24 +52,17 @@ struct AboutView: View {
                     sectionHeader("LEGAL")
 
                     VStack(spacing: 0) {
-                        actionRow(
-                            icon: "doc.text.fill", iconColor: Color(white: 0.45),
-                            title: "Terms and Conditions"
-                        ) {
-                            // Replace with your hosted URL (GitHub Pages, Notion, etc.)
-                            if let url = URL(string: "https://yourwebsite.com/terms") {
-                                UIApplication.shared.open(url)
+                        actionRow(icon: "doc.text.fill", iconColor: Color(white: 0.45), title: "Terms and Conditions") {
+                            if let url = URL(string: "https://jsarriab.github.io/Brawlbit-Legal/terms.html") {
+                                openURL(url)
                             }
                         }
 
                         rowDivider()
 
-                        actionRow(
-                            icon: "lock.fill", iconColor: Color(white: 0.45),
-                            title: "Privacy Policy"
-                        ) {
-                            if let url = URL(string: "https://yourwebsite.com/privacy") {
-                                UIApplication.shared.open(url)
+                        actionRow(icon: "lock.fill", iconColor: Color(white: 0.45), title: "Privacy Policy") {
+                            if let url = URL(string: "https://jsarriab.github.io/Brawlbit-Legal/privacy.html") {
+                                openURL(url)
                             }
                         }
                     }

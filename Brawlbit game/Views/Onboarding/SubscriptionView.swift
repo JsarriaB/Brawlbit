@@ -4,7 +4,9 @@ import SuperwallKit
 struct SubscriptionView: View {
     let onContinue: () -> Void
 
+    @Environment(AppState.self) private var appState
     @State private var showPremiumWelcome = false
+    @State private var isRestoring = false
 
     private var challengeEndDate: String {
         let cal = Calendar.current
@@ -80,17 +82,6 @@ struct SubscriptionView: View {
                     .padding(.horizontal, 28)
                     .padding(.bottom, 28)
 
-                    // ── Stars + rating ─────────────────────────────────
-                    VStack(spacing: 6) {
-                        Text("★★★★★")
-                            .font(.system(size: 22))
-                            .foregroundColor(Color(red: 1.0, green: 0.78, blue: 0.1))
-                        Text("4.9 · Loved by warriors worldwide")
-                            .font(.system(size: 13, design: .rounded))
-                            .foregroundColor(Color(white: 0.45))
-                    }
-                    .padding(.bottom, 24)
-
                     // ── Benefit pills ──────────────────────────────────
                     LazyVGrid(
                         columns: [GridItem(.flexible()), GridItem(.flexible())],
@@ -153,18 +144,15 @@ struct SubscriptionView: View {
 
                         testimonialCard(
                             quote: "I've tried every productivity app. Brawlbit is the first one that made me feel **guilty** for skipping — in a good way.",
-                            name: "Marcus T.",
-                            stars: 5
+                            name: "Marcus T."
                         )
                         testimonialCard(
                             quote: "The 90-day mountain finally made long-term goals feel **real**. I'm on day 47 and I've never been this consistent.",
-                            name: "Sofia R.",
-                            stars: 5
+                            name: "Sofia R."
                         )
                         testimonialCard(
                             quote: "Hard mode is brutal. I've lost days, but that's what makes **winning days feel incredible**.",
-                            name: "James K.",
-                            stars: 5
+                            name: "James K."
                         )
                     }
                     .padding(.horizontal, 24)
@@ -227,6 +215,7 @@ struct SubscriptionView: View {
                     Button {
                         Superwall.shared.register(placement: "main_paywall") {
                             DispatchQueue.main.async {
+                                appState.isPro = true
                                 showPremiumWelcome = true
                             }
                         }
@@ -252,29 +241,26 @@ struct SubscriptionView: View {
                     }
                     .buttonStyle(.plain)
 
-                    // Secondary CTA — skip to app for free
+                    // Restore purchases
                     Button {
-                        onContinue()
+                        isRestoring = true
+                        Task {
+                            let result = await Superwall.shared.restorePurchases()
+                            await MainActor.run {
+                                isRestoring = false
+                                if case .restored = result {
+                                    appState.isPro = true
+                                    showPremiumWelcome = true
+                                }
+                            }
+                        }
                     } label: {
-                        Text("Continue for free")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundColor(Color(white: 0.5))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 13)
-                            .background(Color(white: 0.10))
-                            .cornerRadius(14)
-                    }
-                    .buttonStyle(.plain)
-
-                    // Temporary skip button — remove at launch
-                    Button {
-                        onContinue()
-                    } label: {
-                        Text("Skip to app →")
+                        Text(isRestoring ? "Restoring…" : "Restore purchases")
                             .font(.system(size: 12, design: .rounded))
-                            .foregroundColor(Color(white: 0.28))
+                            .foregroundColor(Color(white: 0.35))
                     }
                     .buttonStyle(.plain)
+                    .disabled(isRestoring)
 
                     // Trust badges
                     HStack(spacing: 16) {
@@ -290,7 +276,7 @@ struct SubscriptionView: View {
                     }
                     .padding(.bottom, 4)
 
-                    Text("Free version includes ads. You can upgrade anytime in Profile.")
+                    Text("Subscription auto-renews. Cancel anytime in Settings.")
                         .font(.system(size: 10, design: .rounded))
                         .foregroundColor(Color(white: 0.22))
                         .multilineTextAlignment(.center)
@@ -366,11 +352,8 @@ struct SubscriptionView: View {
     }
 
     @ViewBuilder
-    private func testimonialCard(quote: String, name: String, stars: Int) -> some View {
+    private func testimonialCard(quote: String, name: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(String(repeating: "★", count: stars))
-                .font(.system(size: 13))
-                .foregroundColor(Color(red: 1.0, green: 0.78, blue: 0.1))
             boldMarkdown(quote)
                 .font(.system(size: 14, design: .rounded))
                 .foregroundColor(Color(white: 0.75))

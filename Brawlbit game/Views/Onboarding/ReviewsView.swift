@@ -21,17 +21,15 @@ struct ReviewsView: View {
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
 
-                        Text("★★★★★")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.1))
+                        Text("Real discipline, real results.")
+                            .font(.system(size: 14, design: .rounded))
+                            .foregroundColor(Color(white: 0.4))
 
                         ReviewCard(
                             name: "Alejandro M.",
                             avatar: "🧑‍💻",
                             avatarColor: Color(red: 0.15, green: 0.08, blue: 0.35),
-                            title: "It completely changed my routine",
-                            reviewBody: "I'd been trying to be more consistent for years. With Brawlbit I turned it into a game. 73 days without missing a single one.",
-                            days: "73 days"
+                            quote: "I'd been trying to be more consistent for years. With Brawlbit I turned it into a game — 73 days without missing a single one."
                         )
                         .offset(x: card1Visible ? 0 : -40)
                         .opacity(card1Visible ? 1 : 0)
@@ -41,9 +39,7 @@ struct ReviewsView: View {
                             name: "Sara R.",
                             avatar: "👩‍🎤",
                             avatarColor: Color(red: 0.35, green: 0.08, blue: 0.08),
-                            title: "The gamification is addictive",
-                            reviewBody: "Watching the monster approach as time runs out gives me a push no other app has given me. Brutal!",
-                            days: "51 days"
+                            quote: "Watching the monster approach as time runs out gives me a push no other app has given me. Brutal!"
                         )
                         .offset(x: card2Visible ? 0 : 40)
                         .opacity(card2Visible ? 1 : 0)
@@ -70,9 +66,7 @@ private struct ReviewCard: View {
     let name: String
     let avatar: String
     let avatarColor: Color
-    let title: String
-    let reviewBody: String
-    let days: String
+    let quote: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -83,25 +77,13 @@ private struct ReviewCard: View {
                     Text(avatar)
                         .font(.system(size: 22))
                 }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(name)
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                    Text("★★★★★  · \(days) streak")
-                        .font(.system(size: 11))
-                        .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.1))
-                }
+                Text(name)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
                 Spacer()
-                Text("✓")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.green)
             }
 
-            Text(title)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
-
-            Text(reviewBody)
+            Text(quote)
                 .font(.system(size: 13, design: .rounded))
                 .foregroundColor(Color(white: 0.55))
                 .lineSpacing(3)

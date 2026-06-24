@@ -135,6 +135,16 @@ enum NotificationService {
             .removePendingNotificationRequests(withIdentifiers: [defeatNotificationId(for: task)])
     }
 
+    /// Cancel all warning notifications (3h, 30min, 5min) for a completed task.
+    /// They will be re-scheduled at the next daily reset via scheduleAll.
+    static func cancelWarningNotifications(for task: MonsterTask) {
+        let days = task.daysOfWeek.isEmpty ? Array(0...6) : task.daysOfWeek
+        let ids = days.flatMap { dayIndex in
+            ["3h", "30min", "5min"].map { label in "\(task.notifId)-day\(dayIndex)-\(label)" }
+        }
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
+    }
+
     // MARK: - Private
 
     private static func defeatNotificationId(for task: MonsterTask) -> String {

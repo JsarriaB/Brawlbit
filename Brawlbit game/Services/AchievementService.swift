@@ -109,6 +109,52 @@ enum AchievementService {
         if currentLvl >= 10                         { unlock("level_10",      bonusPoints: 40) }
         if currentLvl >= 20                         { unlock("level_20",      bonusPoints: 80) }
 
+        // ── Secret achievements ────────────────────────────────────────────
+
+        // Early Bird: win a day with all victories completed before 8:00 AM
+        let hasEarlyBird = dayRecords.contains { r in
+            guard r.dayWon else { return false }
+            let victories = r.battles.filter { $0.result == .victory }
+            guard !victories.isEmpty else { return false }
+            return victories.allSatisfy { b in
+                guard let at = b.completedAt else { return false }
+                return Calendar.current.component(.hour, from: at) < 8
+            }
+        }
+        if hasEarlyBird                             { unlock("early_bird",    bonusPoints: 40) }
+
+        // Phoenix: win a day when hero HP dropped to ≤ 15% (checked at end-of-day)
+        let cal = Calendar.current
+        let todayStart = cal.startOfDay(for: Date())
+        let mostRecent = dayRecords.sorted { $0.date > $1.date }.first
+        let todayWon = mostRecent.map { cal.startOfDay(for: $0.date) == todayStart && $0.dayWon } ?? false
+        if todayWon && hero.hp <= 0.15              { unlock("phoenix",       bonusPoints: 80) }
+
+        // Century: win 100 days in total
+        if wonDays.count >= 100                     { unlock("century",       bonusPoints: 100) }
+
+        // Speed Demon: 3 victories within 5 minutes in any day
+        let hasSpeedDemon = dayRecords.contains { r in
+            let times = r.battles
+                .filter { $0.result == .victory }
+                .compactMap { $0.completedAt }
+                .sorted()
+            guard times.count >= 3 else { return false }
+            return (0..<(times.count - 2)).contains { i in
+                times[i + 2].timeIntervalSince(times[i]) <= 300
+            }
+        }
+        if hasSpeedDemon                            { unlock("speed_demon",   bonusPoints: 45) }
+
+        // Fortnight: 14-day win streak
+        if streak >= 14                             { unlock("fortnight",     bonusPoints: 60) }
+
+        // Shape Shifter: all 3 hero classes unlocked
+        let allClassRawValues = HeroClass.allCases.map { $0.rawValue }
+        if allClassRawValues.allSatisfy({ hero.unlockedHeroClasses.contains($0) }) {
+            unlock("shape_shifter", bonusPoints: 50)
+        }
+
         if !newIds.isEmpty { try? context.save() }
         return newIds
     }
@@ -116,29 +162,64 @@ enum AchievementService {
     // MARK: - Private helpers
 
     static func currentWinStreak(_ records: [DayRecord]) -> Int {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let sorted = records.sorted(by: { $0.date > $1.date })
+        guard let first = sorted.first else { return 0 }
+
+        let firstDay = cal.startOfDay(for: first.date)
+        let daysAgo = cal.dateComponents([.day], from: firstDay, to: today).day ?? 0
+        // Most recent record is more than 1 day old — streak is already broken
+        if daysAgo > 1 { return 0 }
+
         var streak = 0
-        for r in records.sorted(by: { $0.date > $1.date }) {
-            if r.dayWon { streak += 1 } else { break }
+        var prevDay = firstDay
+
+        for r in sorted {
+            let recordDay = cal.startOfDay(for: r.date)
+            let gap = cal.dateComponents([.day], from: recordDay, to: prevDay).day ?? 0
+            if gap > 1 { break }
+            if r.dayWon {
+                streak += 1
+                prevDay = recordDay
+            } else {
+                break
+            }
         }
         return streak
     }
 
     /// Consecutive losses immediately before the most recent record.
     private static func lossStreakBeforeLast(_ records: [DayRecord]) -> Int {
+        let cal = Calendar.current
         let sorted = records.sorted(by: { $0.date > $1.date })
         guard sorted.count >= 2 else { return 0 }
         var streak = 0
+        var prevDay = cal.startOfDay(for: sorted[0].date)
         for r in sorted.dropFirst() {
-            if !r.dayWon { streak += 1 } else { break }
+            let recordDay = cal.startOfDay(for: r.date)
+            let gap = cal.dateComponents([.day], from: recordDay, to: prevDay).day ?? 0
+            if gap > 1 { break }
+            if !r.dayWon { streak += 1; prevDay = recordDay } else { break }
         }
         return streak
     }
 
     private static func consecutivePerfectDays(_ records: [DayRecord]) -> Int {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let sorted = records.sorted(by: { $0.date > $1.date })
+        guard let first = sorted.first else { return 0 }
+        let firstDay = cal.startOfDay(for: first.date)
+        if (cal.dateComponents([.day], from: firstDay, to: today).day ?? 0) > 1 { return 0 }
         var count = 0
-        for r in records.sorted(by: { $0.date > $1.date }) {
+        var prevDay = firstDay
+        for r in sorted {
+            let recordDay = cal.startOfDay(for: r.date)
+            let gap = cal.dateComponents([.day], from: recordDay, to: prevDay).day ?? 0
+            if gap > 1 { break }
             let perfect = !r.battles.isEmpty && r.battles.allSatisfy { $0.result == .victory }
-            if perfect { count += 1 } else { break }
+            if perfect { count += 1; prevDay = recordDay } else { break }
         }
         return count
     }

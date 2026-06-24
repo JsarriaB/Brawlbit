@@ -6,9 +6,15 @@ final class AppState {
     var hasCompletedOnboarding: Bool = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
         didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding") }
     }
+    var isPro: Bool = UserDefaults.standard.bool(forKey: "isPro") {
+        didSet { UserDefaults.standard.set(isPro, forKey: "isPro") }
+    }
     var showDaySummary: Bool = false
     var showChallengeComplete: Bool = false
+    var showDailyChest: Bool = false
+    var dailyChestCoins: Int = 0
     var orbPending: Bool = false
+    var revanchaOrbUsed: Bool = false
 
     /// Resets all tasks if the calendar day has changed since last reset.
     /// Also restores hero HP to full for the new day.
@@ -38,6 +44,24 @@ final class AppState {
         UserDefaults.standard.set(Date(), forKey: "lastResetDate")
         UserDefaults.standard.removeObject(forKey: "lastSummaryDate")
         WidgetWriter.write(tasks: tasks, hero: hero)
+    }
+
+    /// Shows the daily chest on first open of the day, with a variable coin reward.
+    func checkDailyChest() {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let lastChest = (UserDefaults.standard.object(forKey: "lastDailyChestDate") as? Date)
+            .map { cal.startOfDay(for: $0) } ?? .distantPast
+        guard today > lastChest else { return }
+        UserDefaults.standard.set(Date(), forKey: "lastDailyChestDate")
+        let roll = Int.random(in: 1...100)
+        dailyChestCoins = switch roll {
+        case 1...2:   150   // 2%  legendary
+        case 3...10:  80    // 8%  epic
+        case 11...35: 40    // 25% rare
+        default:      15    // 65% common
+        }
+        showDailyChest = true
     }
 
     /// Returns true if the hero currently has an active vacation that covers today.
